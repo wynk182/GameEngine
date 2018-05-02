@@ -4,8 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
@@ -150,18 +148,22 @@ public class Main extends Application {
 	        		int x,y = 0;
 		        	switch(e.getCode()) {
 		        	case UP :
+		        	case W :
 		        		y = selected_character.coordinates[1] - 1;
 		        		x = selected_character.coordinates[0];
 		        		break;
 		        	case DOWN :
+		        	case S :
 		        		y = selected_character.coordinates[1] + 1;
 		        		x = selected_character.coordinates[0];
 		        		break;
 		        	case LEFT :
+		        	case A :
 		        		y = selected_character.coordinates[1];
 		        		x = selected_character.coordinates[0] -1;
 		        		break;
 		        	case RIGHT :
+		        	case D :
 		        		y = selected_character.coordinates[1];
 		        		x = selected_character.coordinates[0] + 1;
 		        		break;
