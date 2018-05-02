@@ -3,13 +3,14 @@ package application;
 import javafx.scene.shape.Rectangle;
 
 public class Character{
-
+	
+	public LoadOut load_out;
 	public String name = "Buster";
 	public String gender = "Male";
-	public int health = 100;
+	public int health;
 	public int attack;
 	public int defense;
-	public int moves = 2;
+	public int moves;
 	public int has_moved = 0;
 	boolean has_attacked = false;
 	public CharacterClass spec = Specialization.Peasant.getSpec();
@@ -18,17 +19,8 @@ public class Character{
 	
 	public int[] coordinates;
 	
-	public Character(Specialization spec, int[] start, String name) {
-		this.name = name;
-		this.coordinates = start;
-		this.spec = spec.getSpec();
-		this.moves += this.spec.move_bonus;
-		this.attack += this.spec.attack_bonus;
-		this.defense += this.spec.defense_bonus;
-		this.health += this.spec.health_bonus;
-		block.setOnMouseClicked(e -> {	
-			//block = new Rectangle(1,1, 50, 50);
-			//Main.inRange(this);
+	public Character() {		
+		block.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this)) {
 				attacker.has_attacked = true;
@@ -46,11 +38,13 @@ public class Character{
 					System.out.println(this.name + " takes " + damage + " damage from " 
 							+ attacker.name + " and defends "+ defense +" and now has " + this.health + " health");
 				}
-			}
-			
+			}			
 		});
-		System.out.println(this.name + " is a " + spec + " with " + this.health + " health.");
-
+		//System.out.println(this.name + " is a " + spec + " with " + this.health + " health.");
+	}
+	
+	public void applyLoadOut(LoadOut load_out){
+		
 	}
 	
 	public boolean move1Space() {

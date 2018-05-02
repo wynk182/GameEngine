@@ -1,8 +1,11 @@
 package application;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -32,7 +35,7 @@ public class Main extends Application {
 	static int[][] game_board = new int[11][11];
 	
 	static CharacterList characters = new CharacterList();
-	List<int[]> objects = new ArrayList<int[]>();
+	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -100,7 +103,7 @@ public class Main extends Application {
 	        	grid.add(seed, x, y);
 	        }
 	        */
-	        
+	        /*
 	        Character warrior = new Character(Specialization.Warrior, new int[] {0,0},"Buster");
 	        warrior.equipWeapon(Weapons.Sword);
 	        Character ranger = new Character(Specialization.Ranger, new int[] {1,9},"Robin");
@@ -108,12 +111,15 @@ public class Main extends Application {
 	        Character healer = new Character(Specialization.Healer, new int[] {5,0},"Rosa");
 	        Character peasant = new Character(Specialization.Peasant, new int[] {2,9}, "Leah");
 	        //peasant.equipWeapon(Weapons.SuperSword);
+	         
+	         
 	        characters.add(warrior);
 	        characters.add(healer);
 	        characters.add(ranger);
 	        characters.add(peasant);
-	        
+	        */
 	        selected_character = characters.getNext();
+	        /*
 	        grid.add(warrior.drawCharacter(), 0,0);
 			grid.add(healer.drawCharacter(), 5, 0);
 			grid.add(ranger.drawCharacter(), 1, 9);
@@ -146,7 +152,7 @@ public class Main extends Application {
 	        	System.out.println(e.getCode());
 	        	if(selected_character != null) {
 	        		int x,y = 0;
-		        	switch(e.getCode()) {
+		        	switch(e.getCode()) {		        	
 		        	case UP :
 		        	case W :
 		        		y = selected_character.coordinates[1] - 1;
@@ -273,8 +279,22 @@ public class Main extends Application {
 	
 	public static Character selected_character = null;
 	
-	public static void main(String[] args) {
-		DBController.connect("test.db");
+	public static void main(String[] args) {	
+		boolean seed = true;
+		if(new File("test.db").exists())
+			seed = false;
+		Connection c = DBController.connect("test.db");
+		DBController.createTables(c);
+		if(seed)
+			DBController.seedData(c);
+		DBController.loadCharacters(c);
+		try{
+			c.close();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}		
+		
 		launch(args);
 	}
 }
