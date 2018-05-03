@@ -8,11 +8,9 @@ import java.util.HashMap;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
-import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.image.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -26,6 +24,7 @@ import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
 	GridPane grid = new GridPane();
+	BackPack backpack = new BackPack();
 	GridPane equip = new GridPane();
 	Pane bp = new Pane();
 	Label character_info = new Label();
@@ -51,7 +50,8 @@ public class Main extends Application {
 			attack_button.setFocusTraversable(false);
 			defend_button.setFocusTraversable(false);
 
-			grid.setGridLinesVisible(true);;
+			grid.setGridLinesVisible(true);
+
 			for(int i = 0; i < 11; i++) {
 	            ColumnConstraints column = new ColumnConstraints(50);
 	            grid.getColumnConstraints().add(column);
@@ -70,95 +70,30 @@ public class Main extends Application {
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
 	        		}
-	        	}
-	        }
-	        /*
-	        for(int r = 0; r < 11; r++) {
-        		HashMap<Integer,Integer> row = new HashMap<>();
-
-	        	for(int c = 0; c < 11; c++) {
-	        		int obj = (int)(Math.random()*10);
-	        		if(obj > 8) {
-	        			Rectangle seed = new Rectangle(1,1, 50, 50);
-	        			seed.setFill(Color.BROWN);
-	        			grid.add(seed, c,r);
+	        		else if(obj > 7){
+	        			Rectangle gold = new Rectangle(1,1, 25, 25);
+	        			gold.setFill(Color.GOLD);
+	        			grid.add(gold, c,r);
 	        		}
-	        		row.put(c, obj);
 	        	}
-        		System.out.println(row);
-
-        		game_board.put(r, row);
-
 	        }
-	        */
-	        //System.out.println();
 	        
-	        /*
-	        for(int i = 0; i < 1000;i++) {
-	        	int x = (int) (Math.random() *100);
-	        	int y = (int) (Math.random() *100);
-	        	objects.add(new int[] {x,y});
-	        	Rectangle seed = new Rectangle(1,1, 50, 50);
-	        	seed.setFill(Color.BROWN);
-	        	grid.add(seed, x, y);
-	        }
-	        for(int i = 0; i < 2000;i++) {
-	        	int x = (int) (Math.random() *100);
-	        	int y = (int) (Math.random() *100);
-	        	objects.add(new int[] {x,y});
-	        	Rectangle seed = new Rectangle(1,1, 50, 50);
-	        	seed.setFill(Color.DARKBLUE);
-	        	grid.add(seed, x, y);
-	        }
-	        */
-	        /*
-	        Character warrior = new Character(Specialization.Warrior, new int[] {0,0},"Buster");
-	        warrior.equipWeapon(Weapons.Sword);
-	        Character ranger = new Character(Specialization.Ranger, new int[] {1,9},"Robin");
-	        ranger.equipWeapon(Weapons.Bow);
-	        Character healer = new Character(Specialization.Healer, new int[] {5,0},"Rosa");
-	        Character peasant = new Character(Specialization.Peasant, new int[] {2,9}, "Leah");
-	        //peasant.equipWeapon(Weapons.SuperSword);
-	         
-	         
-	        characters.add(warrior);
-	        characters.add(healer);
-	        characters.add(ranger);
-	        characters.add(peasant);
-	        */
 	        selected_character = characters.getNext();
-	        /*
-	        grid.add(warrior.drawCharacter(), 0,0);
-			grid.add(healer.drawCharacter(), 5, 0);
-			grid.add(ranger.drawCharacter(), 1, 9);
-			grid.add(peasant.drawCharacter(), 2, 9);
-	        /*
-	        grid.setOnMouseClicked(e -> {
-	        	int x = (int) e.getSceneX();
-	        	int y = (int) e.getSceneY();
-	        	//System.out.println(x + " | " + y);
-	        	if(selected_character != null && !spaceOccupied(x,y)) {
-	        		grid.getChildren().remove(selected_character.block);
-	        		grid.add(selected_character.drawCharacter(), x/50, y/50);
-	        		selected_character.coordinates = new int[] {x/50, y/50};
-	        	}
-	        });
-			*/
-			
+			for(Item i : items.values()) {
+				if(!i.equipped) {
+					backpack.add(i.drawItem(), 0, 0);
+				}
+			}
 			VBox action_box = new VBox();
-			//HBox equiped = new HBox();
-			//equiped.getChildren().addAll(new VBox().getChildren().add(l),
-			//		new VBox().getChildren().addAll(h,b,f),new VBox().getChildren().add(r));
-			//Image image = new Image(new File("cursor.png").toURI().toString());
-			//grid.setCursor(new ImageCursor(image));
 			equip.setPadding(new Insets(5));
+			backpack.setPadding(new Insets(5));
 			equip.add(l, 0, 1);
 			equip.add(h, 1, 0);
 			equip.add(b, 1, 1);
 			equip.add(f, 1, 2);
 			equip.add(r, 2, 1);
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
-			action_box.getChildren().addAll(character_info,moves,equip,item_info);
+			action_box.getChildren().addAll(character_info,moves,equip,backpack);
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
@@ -251,6 +186,7 @@ public class Main extends Application {
 			equip.add(selected_character.load_out.body.drawItem(), 1, 1);
 		if(selected_character.load_out.feet != null)
 			equip.add(selected_character.load_out.feet.drawItem(), 1, 2);
+		
 		centerScreen();
 	}
 	

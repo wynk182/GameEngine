@@ -101,7 +101,7 @@ public class DBController {
 				//character.load_out = load_out;
 				character.name = characters.getString("name");
 				character.gender = characters.getString("gender");
-				character.coordinates = new int[]{0,0};
+				character.coordinates = new int[]{5,5};
 				character.setLoadOut(load_out);
 				Main.characters.add(character);
 				//System.out.println("Item in right hand is " + load_out.right_hand.name);

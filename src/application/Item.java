@@ -12,16 +12,29 @@ public class Item {
 	int health_bonus = 0;
 	int worth = 0;
 	int range = 0;
+	boolean equipped = false;
 	
 	public Rectangle drawItem() {
 		Rectangle item  = new Rectangle(1,1,20,20);
 		item.setFill(Color.RED);
 		item.setStyle("-fx-cursor: hand;");
+		/*
 		item.setOnMouseClicked(e -> {
 			System.out.println(name);
 			Main.item_info.setText("Item info:\n" + name + "\nAttack:" + attack_bonus 
 					+ "\nDefense:" + defense_bonus + "\nMove:" + move_bonus 
 					+ "\nHealth:" + health_bonus + "\nValue:" + worth + "\nRange:" + range);
+		});
+		*/
+		item.setOnDragDetected(e ->{
+			if(equipped) {
+				equipped = false;
+			}
+			else {
+				equipped = true;
+			}
+			System.out.println(equipped);
+			//Main.selected_character.load_out.items.get(key)
 		});
 		return item;
 	}
