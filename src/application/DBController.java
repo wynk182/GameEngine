@@ -9,8 +9,8 @@ import java.sql.Statement;
 
 public class DBController {
 
-	public static Connection connect(String fileName) {
-			
+	public static Connection connect() {
+		String fileName = "test.db";	
         Connection conn = null;
         
         try {
@@ -28,6 +28,32 @@ public class DBController {
         } 
         return conn;
     }
+	
+	public static void addNewItem(String name,int item_type,int a,int d,int m,int h,int w,int r) {
+		Connection c = connect();
+		try {
+			PreparedStatement pstmt = c.prepareStatement(
+					"insert into items (name,item_type,attack_bonus,"
+					+ "defense_bonus,move_bonus,"
+					+ "health_bonus,worth,range) "
+					+ "values (?,?,?,?,?,?,?,?);"
+					);
+			pstmt.setString(1, name);
+			pstmt.setInt(2, item_type);
+			pstmt.setInt(3, a);
+			pstmt.setInt(4, d);
+			pstmt.setInt(5, m);
+			pstmt.setInt(6, h);
+			pstmt.setInt(7, w);
+			pstmt.setInt(8, r);
+			pstmt.execute();
+			pstmt.close();
+			c.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 	public static void loadCharacters(Connection conn){
 		
@@ -53,27 +79,32 @@ public class DBController {
 				ResultSet loadout = conn.createStatement().executeQuery("select * from loadouts "
 						+ "where character_id = " + characters.getInt("id"));
 				
-				LoadOut load_out = new LoadOut();
+				LoadOut load_out = null;
 				while(loadout.next()){
-					load_out.right_hand = Main.items.get(loadout.getInt("right_hand"));
-					load_out.left_hand = Main.items.get(loadout.getInt("left_hand"));
-					load_out.body = Main.items.get(loadout.getInt("body"));
-					load_out.feet = Main.items.get(loadout.getInt("feet"));
+					load_out = new LoadOut(
+							Main.items.get(loadout.getInt("right_hand")),
+							Main.items.get(loadout.getInt("left_hand")),
+							Main.items.get(loadout.getInt("head")),
+
+							Main.items.get(loadout.getInt("body")),
+							Main.items.get(loadout.getInt("feet"))
+					);
 				}
 				//int spec = characters.getInt("spec");
 				
-				Character character = new Character();
+				
+				int health = characters.getInt("health");
+				int attack = characters.getInt("attack");
+				int defense = characters.getInt("defense");
+				int moves = characters.getInt("moves");
+				Character character = new Character(health,attack,defense,moves);
 				//character.load_out = load_out;
 				character.name = characters.getString("name");
 				character.gender = characters.getString("gender");
-				character.health = characters.getInt("health");
-				character.attack = characters.getInt("attack");
-				character.defense = characters.getInt("defense");
-				character.moves = characters.getInt("moves");
-				character.coordinates = new int[]{0,0};
+				character.coordinates = new int[]{5,5};
 				character.setLoadOut(load_out);
 				Main.characters.add(character);
-				System.out.println("Item in right hand is " + character.load_out.right_hand.name);
+				//System.out.println("Item in right hand is " + load_out.right_hand.name);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -176,6 +207,20 @@ public class DBController {
 			pstmt.setInt(8, 0);
 			pstmt.execute();
 			pstmt.close();
+			sql = "insert into items (name,item_type,attack_bonus,defense_bonus,move_bonus,"
+					+ "health_bonus,worth,range) "
+					+ "values (?,?,?,?,?,?,?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, "Leather Shoes");
+			pstmt.setInt(2, 0);
+			pstmt.setInt(3, 0);
+			pstmt.setInt(4, 2);
+			pstmt.setInt(5, 2);
+			pstmt.setInt(6, 0);
+			pstmt.setInt(7, 3);
+			pstmt.setInt(8, 0);
+			pstmt.execute();
+			pstmt.close();
 			sql = "insert into loadouts (character_id,right_hand,left_hand,body,head,feet) "
 					+ "values (?,?,?,?,?,?);";
 			pstmt = conn.prepareStatement(sql);
@@ -184,7 +229,7 @@ public class DBController {
 			pstmt.setInt(3, 2);
 			pstmt.setInt(4, 0);
 			pstmt.setInt(5, 0);
-			pstmt.setInt(6, 0);			
+			pstmt.setInt(6, 3);			
 			pstmt.execute();
 			pstmt.close();
 			

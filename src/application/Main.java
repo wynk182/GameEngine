@@ -4,15 +4,14 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.Dragboard;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -26,24 +25,34 @@ import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
 	GridPane grid = new GridPane();
-	Pane bp = new Pane();
+	static GridPane equip = new GridPane();
+	static Pane bp = new Pane();
 	Label character_info = new Label();
 	Label moves = new Label();
 	Button attack_button = new Button("Attack");
 	Button defend_button = new Button("Defend");
-	
+	Rectangle r = new Rectangle(1,1,20,20);
+	Rectangle l = new Rectangle(1,1,20,20);
+	Rectangle h = new Rectangle(1,1,20,20);
+	Rectangle b = new Rectangle(1,1,20,20);
+	Rectangle f = new Rectangle(1,1,20,20);
+
+	static 	BackPack backpack = new BackPack();
+	//static Dragboard db;
 	static int[][] game_board = new int[11][11];
-	
+	static Label item_info = new Label("Item info:");
 	static CharacterList characters = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
 	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			
 			attack_button.setFocusTraversable(false);
 			defend_button.setFocusTraversable(false);
 
-			grid.setGridLinesVisible(true);;
+			grid.setGridLinesVisible(true);
+
 			for(int i = 0; i < 11; i++) {
 	            ColumnConstraints column = new ColumnConstraints(50);
 	            grid.getColumnConstraints().add(column);
@@ -62,84 +71,30 @@ public class Main extends Application {
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
 	        		}
-	        	}
-	        }
-	        /*
-	        for(int r = 0; r < 11; r++) {
-        		HashMap<Integer,Integer> row = new HashMap<>();
-
-	        	for(int c = 0; c < 11; c++) {
-	        		int obj = (int)(Math.random()*10);
-	        		if(obj > 8) {
-	        			Rectangle seed = new Rectangle(1,1, 50, 50);
-	        			seed.setFill(Color.BROWN);
-	        			grid.add(seed, c,r);
+	        		else if(obj > 7){
+	        			Rectangle gold = new Rectangle(1,1, 25, 25);
+	        			gold.setFill(Color.GOLD);
+	        			grid.add(gold, c,r);
 	        		}
-	        		row.put(c, obj);
 	        	}
-        		System.out.println(row);
-
-        		game_board.put(r, row);
-
 	        }
-	        */
-	        //System.out.println();
 	        
-	        /*
-	        for(int i = 0; i < 1000;i++) {
-	        	int x = (int) (Math.random() *100);
-	        	int y = (int) (Math.random() *100);
-	        	objects.add(new int[] {x,y});
-	        	Rectangle seed = new Rectangle(1,1, 50, 50);
-	        	seed.setFill(Color.BROWN);
-	        	grid.add(seed, x, y);
-	        }
-	        for(int i = 0; i < 2000;i++) {
-	        	int x = (int) (Math.random() *100);
-	        	int y = (int) (Math.random() *100);
-	        	objects.add(new int[] {x,y});
-	        	Rectangle seed = new Rectangle(1,1, 50, 50);
-	        	seed.setFill(Color.DARKBLUE);
-	        	grid.add(seed, x, y);
-	        }
-	        */
-	        /*
-	        Character warrior = new Character(Specialization.Warrior, new int[] {0,0},"Buster");
-	        warrior.equipWeapon(Weapons.Sword);
-	        Character ranger = new Character(Specialization.Ranger, new int[] {1,9},"Robin");
-	        ranger.equipWeapon(Weapons.Bow);
-	        Character healer = new Character(Specialization.Healer, new int[] {5,0},"Rosa");
-	        Character peasant = new Character(Specialization.Peasant, new int[] {2,9}, "Leah");
-	        //peasant.equipWeapon(Weapons.SuperSword);
-	         
-	         
-	        characters.add(warrior);
-	        characters.add(healer);
-	        characters.add(ranger);
-	        characters.add(peasant);
-	        */
 	        selected_character = characters.getNext();
-	        /*
-	        grid.add(warrior.drawCharacter(), 0,0);
-			grid.add(healer.drawCharacter(), 5, 0);
-			grid.add(ranger.drawCharacter(), 1, 9);
-			grid.add(peasant.drawCharacter(), 2, 9);
-	        /*
-	        grid.setOnMouseClicked(e -> {
-	        	int x = (int) e.getSceneX();
-	        	int y = (int) e.getSceneY();
-	        	//System.out.println(x + " | " + y);
-	        	if(selected_character != null && !spaceOccupied(x,y)) {
-	        		grid.getChildren().remove(selected_character.block);
-	        		grid.add(selected_character.drawCharacter(), x/50, y/50);
-	        		selected_character.coordinates = new int[] {x/50, y/50};
-	        	}
-	        });
-			*/
-			
+			for(Item i : items.values()) {
+				if(!i.equipped) {
+					backpack.add(i.drawItem(), 0, 0);
+				}
+			}
 			VBox action_box = new VBox();
+			equip.setPadding(new Insets(5));
+			backpack.setPadding(new Insets(5));
+			equip.add(l, 0, 1);
+			equip.add(h, 1, 0);
+			equip.add(b, 1, 1);
+			equip.add(f, 1, 2);
+			equip.add(r, 2, 1);
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
-			action_box.getChildren().addAll(character_info,moves);
+			action_box.getChildren().addAll(character_info,moves,equip,backpack);
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
@@ -186,7 +141,7 @@ public class Main extends Application {
 			        	grid.add(selected_character.drawCharacter(), x, y);
 			        	//game_board.get(y).put(x, 10);
 			        	selected_character.coordinates = new int[] {x,y};
-		        		moves.setText("Moves: " + (selected_character.moves - selected_character.has_moved));
+		        		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		        		centerScreen();
 
 
@@ -216,11 +171,25 @@ public class Main extends Application {
 		selected_character = characters.getNext();
 		selected_character.has_moved = 0;
 		selected_character.has_attacked = false;
-		moves.setText("Moves: " + (selected_character.moves - selected_character.has_moved));
+		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
-				+ "\nHP: " + selected_character.health
-				+ "\nAttack: " + selected_character.attack 
-				+ "\nDefense: " + selected_character.defense);
+				+ "\nHP: " + selected_character.health()
+				+ "\nAttack: " + selected_character.attack() 
+				+ "\nDefense: " + selected_character.defense()
+				);
+		equip.getChildren().removeAll(equip.getChildren());
+		//if
+		equip.add((selected_character.load_out.right_hand != null) ?
+			selected_character.load_out.right_hand.drawItem() : r, 0, 1);
+		equip.add((selected_character.load_out.left_hand != null) ?
+			selected_character.load_out.left_hand.drawItem() : l, 2, 1);
+		equip.add((selected_character.load_out.head != null) ?
+			selected_character.load_out.head.drawItem() : h, 1, 0);
+		equip.add((selected_character.load_out.body != null) ?
+			selected_character.load_out.body.drawItem() : b, 1, 1);
+		equip.add((selected_character.load_out.feet != null) ?
+			selected_character.load_out.feet.drawItem() : f, 1, 2);
+		
 		centerScreen();
 	}
 	
@@ -283,7 +252,7 @@ public class Main extends Application {
 		boolean seed = true;
 		if(new File("test.db").exists())
 			seed = false;
-		Connection c = DBController.connect("test.db");
+		Connection c = DBController.connect();
 		DBController.createTables(c);
 		if(seed)
 			DBController.seedData(c);
