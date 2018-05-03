@@ -4,15 +4,15 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
+import javafx.scene.ImageCursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -26,20 +26,28 @@ import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
 	GridPane grid = new GridPane();
+	GridPane equip = new GridPane();
 	Pane bp = new Pane();
 	Label character_info = new Label();
 	Label moves = new Label();
 	Button attack_button = new Button("Attack");
 	Button defend_button = new Button("Defend");
+	Rectangle r = new Rectangle(1,1,20,20);
+	Rectangle l = new Rectangle(1,1,20,20);
+	Rectangle h = new Rectangle(1,1,20,20);
+	Rectangle b = new Rectangle(1,1,20,20);
+	Rectangle f = new Rectangle(1,1,20,20);
+
 	
 	static int[][] game_board = new int[11][11];
-	
+	static Label item_info = new Label("Item info:");
 	static CharacterList characters = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
 	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			
 			attack_button.setFocusTraversable(false);
 			defend_button.setFocusTraversable(false);
 
@@ -138,8 +146,19 @@ public class Main extends Application {
 			*/
 			
 			VBox action_box = new VBox();
+			//HBox equiped = new HBox();
+			//equiped.getChildren().addAll(new VBox().getChildren().add(l),
+			//		new VBox().getChildren().addAll(h,b,f),new VBox().getChildren().add(r));
+			//Image image = new Image(new File("cursor.png").toURI().toString());
+			//grid.setCursor(new ImageCursor(image));
+			equip.setPadding(new Insets(5));
+			equip.add(l, 0, 1);
+			equip.add(h, 1, 0);
+			equip.add(b, 1, 1);
+			equip.add(f, 1, 2);
+			equip.add(r, 2, 1);
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
-			action_box.getChildren().addAll(character_info,moves);
+			action_box.getChildren().addAll(character_info,moves,equip,item_info);
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
@@ -186,7 +205,7 @@ public class Main extends Application {
 			        	grid.add(selected_character.drawCharacter(), x, y);
 			        	//game_board.get(y).put(x, 10);
 			        	selected_character.coordinates = new int[] {x,y};
-		        		moves.setText("Moves: " + (selected_character.moves - selected_character.has_moved));
+		        		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		        		centerScreen();
 
 
@@ -216,11 +235,22 @@ public class Main extends Application {
 		selected_character = characters.getNext();
 		selected_character.has_moved = 0;
 		selected_character.has_attacked = false;
-		moves.setText("Moves: " + (selected_character.moves - selected_character.has_moved));
+		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
-				+ "\nHP: " + selected_character.health
-				+ "\nAttack: " + selected_character.attack 
-				+ "\nDefense: " + selected_character.defense);
+				+ "\nHP: " + selected_character.health()
+				+ "\nAttack: " + selected_character.attack() 
+				+ "\nDefense: " + selected_character.defense()
+				);
+		if(selected_character.load_out.right_hand != null)
+			equip.add(selected_character.load_out.right_hand.drawItem(), 0, 1);
+		if(selected_character.load_out.left_hand != null)
+			equip.add(selected_character.load_out.left_hand.drawItem(), 2, 1);
+		if(selected_character.load_out.head != null)
+			equip.add(selected_character.load_out.head.drawItem(), 1, 0);
+		if(selected_character.load_out.body != null)
+			equip.add(selected_character.load_out.body.drawItem(), 1, 1);
+		if(selected_character.load_out.feet != null)
+			equip.add(selected_character.load_out.feet.drawItem(), 1, 2);
 		centerScreen();
 	}
 	
@@ -283,7 +313,7 @@ public class Main extends Application {
 		boolean seed = true;
 		if(new File("test.db").exists())
 			seed = false;
-		Connection c = DBController.connect("test.db");
+		Connection c = DBController.connect();
 		DBController.createTables(c);
 		if(seed)
 			DBController.seedData(c);
