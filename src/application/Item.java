@@ -1,12 +1,11 @@
 package application;
 
-import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class Item {
+public class Item extends Rectangle{
 	String name = "";
-	int item_type = 0;
+	String item_type = "";
 	int attack_bonus = 0;
 	int defense_bonus = 0;
 	int move_bonus = 0;
@@ -14,46 +13,37 @@ public class Item {
 	int worth = 0;
 	int range = 0;
 	boolean equipped = false;
-	Rectangle item  = new Rectangle(1,1,20,20);
+	//Rectangle item  = 
 	
 	public Item() {
-		item.setOnMousePressed(e -> {
-		    // record a delta distance for the drag and drop operation.
-			
-		    //x = item.getLayoutX();
-		    //y = item.getLayoutY();
-			//item.setLayoutX(e.getSceneX());
-			//item.setLayoutY(e.getSceneY());
-		    System.out.println(this.name);
-		    //item.setCursor(Cursor.MOVE);
-		  
+		//this = new Rectangle(1,1,20,20);
+		
+		this.setOnMousePressed(e -> {		    
+		    System.out.println(this.name);		    
 		});
-		item.setOnMouseDragged(e -> {
+		this.setOnMouseDragged(e -> {
 			if(equipped) {
 				equipped = false;
 				Main.selected_character.removeItem(this);
-				int r = GridPane.getRowIndex(item);
-				int c = GridPane.getColumnIndex(item);
-				Main.equip.getChildren().remove(item);
-				Main.equip.add(new Rectangle(1,1,20,20), c, r);
+				//int r = GridPane.getRowIndex(this);
+				//int c = GridPane.getColumnIndex(this);
+				Main.equip.getChildren().remove(this);
+				//Main.equip.add(new Rectangle(1,1,20,20), c, r);
 				//Main.equip.getChildren().get(0).rowIndex;
-				item.setLayoutX(e.getSceneX());
-				item.setLayoutY(e.getSceneY());
-				Main.backpack.addToBackPack(item);
+				this.setLayoutX(e.getSceneX());
+				this.setLayoutY(e.getSceneY());
+				Main.backpack.addToBackPack(this);
 			}
 			else {
-				
+				Main.selected_character.load_out.equipItem(this, this.item_type);
+				Main.backpack.removeFromBackPack(this);
 			}
 			
 		});
-	}
-
-	public Rectangle drawItem() {
-		item.setFill(Color.RED);
-		item.setStyle("-fx-cursor: hand;");
-		
-		
-		
-		return item;
-	}
+		this.setWidth(20);
+		this.setHeight(20);
+		this.setFill(Color.RED);
+		this.setStyle("-fx-cursor: hand;");		
+	}		
+	
 }

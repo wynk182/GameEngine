@@ -36,4 +36,10 @@ public class BackPack extends GridPane{
 			}
 		}
 	}
+	public void removeFromBackPack(Item item){
+		int r = GridPane.getRowIndex(item);
+		int c = GridPane.getColumnIndex(item);
+		slots[r][c] = 0;
+		this.getChildren().remove(item);
+	}
 }

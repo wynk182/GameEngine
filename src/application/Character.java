@@ -3,6 +3,7 @@ package application;
 import java.io.File;
 
 import javafx.scene.ImageCursor;
+import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 
@@ -54,37 +55,34 @@ public class Character{
 	
 	public int attack() {
 		int power = this.attack;
-		for(Item i : load_out.items){
-			power += (i != null) ? i.attack_bonus : 0;
-			
+		for(Node i : load_out.getChildren()){			
+			power += ((Item) i).attack_bonus;			
 		}
 		return power;
 	}
 	public int defense() {
 		int power = this.defense;
-		for(Item i : load_out.items){
-			power += (i != null) ? i.defense_bonus : 0;
-			
+		for(Node i : load_out.getChildren()){			
+			power += ((Item) i).defense_bonus;			
 		}
 		return power;
 	}
 	public int health() {
 		int power = this.health;
-		for(Item i : load_out.items){
-			power += (i != null) ? i.health_bonus : 0;
-			
+		for(Node i : load_out.getChildren()){			
+			power += ((Item) i).health_bonus;			
 		}
 		return power;
 	}
 	public int moves() {
 		int power = this.moves;
-		for(Item i : load_out.items){
-			power += (i != null) ? i.move_bonus : 0;
-			
+		for(Node i : load_out.getChildren()){			
+			power += ((Item) i).move_bonus;			
 		}
 		return power;
 	}
 	
+	/*
 	public void setLoadOut(LoadOut load_out){
 		this.load_out = load_out;
 		this.current_health = health();
@@ -93,6 +91,7 @@ public class Character{
 				System.out.println("Wearing: " + i.name);
 		}
 	}
+	*/
 	
 	public void equipItem(Item item, String slot){
 		

@@ -11,7 +11,7 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.input.Dragboard;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -24,8 +24,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
+	static Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	GridPane grid = new GridPane();
-	static GridPane equip = new GridPane();
+	VBox action_box = new VBox();
+	static LoadOut equip = new LoadOut();
 	static Pane bp = new Pane();
 	Label character_info = new Label();
 	Label moves = new Label();
@@ -82,11 +84,11 @@ public class Main extends Application {
 	        selected_character = characters.getNext();
 			for(Item i : items.values()) {
 				if(!i.equipped) {
-					backpack.add(i.drawItem(), 0, 0);
+					//backpack.add(i, 0, 0);
+					backpack.addToBackPack(i);
 				}
 			}
-			VBox action_box = new VBox();
-			equip.setPadding(new Insets(5));
+			
 			backpack.setPadding(new Insets(5));
 			equip.add(l, 0, 1);
 			equip.add(h, 1, 0);
@@ -168,6 +170,7 @@ public class Main extends Application {
 	}
 	
 	public void setActiveCharacter() {
+		action_box.getChildren().remove(equip);
 		selected_character = characters.getNext();
 		selected_character.has_moved = 0;
 		selected_character.has_attacked = false;
@@ -177,6 +180,12 @@ public class Main extends Application {
 				+ "\nAttack: " + selected_character.attack() 
 				+ "\nDefense: " + selected_character.defense()
 				);
+		equip = selected_character.load_out;
+		action_box.getChildren().add(equip);
+		equip.setPadding(new Insets(5));
+
+		/*
+		 * 
 		equip.getChildren().removeAll(equip.getChildren());
 		//if
 		equip.add((selected_character.load_out.right_hand != null) ?
@@ -189,7 +198,7 @@ public class Main extends Application {
 			selected_character.load_out.body.drawItem() : b, 1, 1);
 		equip.add((selected_character.load_out.feet != null) ?
 			selected_character.load_out.feet.drawItem() : f, 1, 2);
-		
+		*/
 		centerScreen();
 	}
 	

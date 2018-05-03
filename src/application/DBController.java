@@ -63,7 +63,7 @@ public class DBController {
 			while(items.next()){
 				Item item = new Item();
 				item.name = items.getString("name");
-				item.item_type = items.getInt("item_type");
+				item.item_type = items.getString("item_type");
 				item.attack_bonus = items.getInt("attack_bonus");
 				item.defense_bonus = items.getInt("defense_bonus");
 				item.move_bonus = items.getInt("move_bonus");
@@ -81,14 +81,13 @@ public class DBController {
 				
 				LoadOut load_out = null;
 				while(loadout.next()){
-					load_out = new LoadOut(
-							Main.items.get(loadout.getInt("right_hand")),
-							Main.items.get(loadout.getInt("left_hand")),
-							Main.items.get(loadout.getInt("head")),
-
-							Main.items.get(loadout.getInt("body")),
-							Main.items.get(loadout.getInt("feet"))
-					);
+					load_out = new LoadOut();		
+					//List<Item> equipment = new ArrayList<Item>();
+					load_out.equipItem(Main.items.get(loadout.getInt("right_hand")), "right");
+					load_out.equipItem(Main.items.get(loadout.getInt("left_hand")), "left");
+					load_out.equipItem(Main.items.get(loadout.getInt("head")), "head");
+					load_out.equipItem(Main.items.get(loadout.getInt("body")),"body");
+					load_out.equipItem(Main.items.get(loadout.getInt("feet")),"feet");					
 				}
 				//int spec = characters.getInt("spec");
 				
@@ -102,7 +101,8 @@ public class DBController {
 				character.name = characters.getString("name");
 				character.gender = characters.getString("gender");
 				character.coordinates = new int[]{5,5};
-				character.setLoadOut(load_out);
+				character.load_out = load_out;
+				//character.setLoadOut(load_out);
 				Main.characters.add(character);
 				//System.out.println("Item in right hand is " + load_out.right_hand.name);
 			}
@@ -133,7 +133,7 @@ public class DBController {
 			sql = "CREATE TABLE IF NOT EXISTS items (\n"
 	                + "	id integer PRIMARY KEY AUTOINCREMENT,\n"
 	                + "	name text NOT NULL,\n"
-	                + "	item_type integer,\n"
+	                + "	item_type text,\n"
 	                + " attack_bonus integer,\n"
 	                + " defense_bonus integer,\n"
 	                + " move_bonus integer,\n"
@@ -184,7 +184,7 @@ public class DBController {
 					+ "values (?,?,?,?,?,?,?,?);";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, "Wooden Sword");
-			pstmt.setInt(2, 1);
+			pstmt.setString(2, "right");
 			pstmt.setInt(3, 8);
 			pstmt.setInt(4, 2);
 			pstmt.setInt(5, 0);
@@ -192,13 +192,13 @@ public class DBController {
 			pstmt.setInt(7, 5);
 			pstmt.setInt(8, 1);
 			pstmt.execute();
-			pstmt.close();
+			pstmt.close();			
 			sql = "insert into items (name,item_type,attack_bonus,defense_bonus,move_bonus,"
 					+ "health_bonus,worth,range) "
 					+ "values (?,?,?,?,?,?,?,?);";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, "Wooden Sheild");
-			pstmt.setInt(2, 0);
+			pstmt.setString(2, "left");
 			pstmt.setInt(3, 2);
 			pstmt.setInt(4, 10);
 			pstmt.setInt(5, -1);
@@ -212,12 +212,26 @@ public class DBController {
 					+ "values (?,?,?,?,?,?,?,?);";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, "Leather Shoes");
-			pstmt.setInt(2, 0);
+			pstmt.setString(2, "feet");
 			pstmt.setInt(3, 0);
 			pstmt.setInt(4, 2);
 			pstmt.setInt(5, 2);
 			pstmt.setInt(6, 0);
 			pstmt.setInt(7, 3);
+			pstmt.setInt(8, 0);
+			pstmt.execute();
+			pstmt.close();
+			sql = "insert into items (name,item_type,attack_bonus,defense_bonus,move_bonus,"
+					+ "health_bonus,worth,range) "
+					+ "values (?,?,?,?,?,?,?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, "Oak Barrel");
+			pstmt.setString(2, "body");
+			pstmt.setInt(3, -1);
+			pstmt.setInt(4, 10);
+			pstmt.setInt(5, -1);
+			pstmt.setInt(6, 0);
+			pstmt.setInt(7, 15);
 			pstmt.setInt(8, 0);
 			pstmt.execute();
 			pstmt.close();
