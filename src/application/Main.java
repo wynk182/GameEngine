@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.Dragboard;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -24,9 +25,8 @@ import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
 	GridPane grid = new GridPane();
-	BackPack backpack = new BackPack();
-	GridPane equip = new GridPane();
-	Pane bp = new Pane();
+	static GridPane equip = new GridPane();
+	static Pane bp = new Pane();
 	Label character_info = new Label();
 	Label moves = new Label();
 	Button attack_button = new Button("Attack");
@@ -37,7 +37,8 @@ public class Main extends Application {
 	Rectangle b = new Rectangle(1,1,20,20);
 	Rectangle f = new Rectangle(1,1,20,20);
 
-	
+	static 	BackPack backpack = new BackPack();
+	//static Dragboard db;
 	static int[][] game_board = new int[11][11];
 	static Label item_info = new Label("Item info:");
 	static CharacterList characters = new CharacterList();
@@ -176,16 +177,18 @@ public class Main extends Application {
 				+ "\nAttack: " + selected_character.attack() 
 				+ "\nDefense: " + selected_character.defense()
 				);
-		if(selected_character.load_out.right_hand != null)
-			equip.add(selected_character.load_out.right_hand.drawItem(), 0, 1);
-		if(selected_character.load_out.left_hand != null)
-			equip.add(selected_character.load_out.left_hand.drawItem(), 2, 1);
-		if(selected_character.load_out.head != null)
-			equip.add(selected_character.load_out.head.drawItem(), 1, 0);
-		if(selected_character.load_out.body != null)
-			equip.add(selected_character.load_out.body.drawItem(), 1, 1);
-		if(selected_character.load_out.feet != null)
-			equip.add(selected_character.load_out.feet.drawItem(), 1, 2);
+		equip.getChildren().removeAll(equip.getChildren());
+		//if
+		equip.add((selected_character.load_out.right_hand != null) ?
+			selected_character.load_out.right_hand.drawItem() : r, 0, 1);
+		equip.add((selected_character.load_out.left_hand != null) ?
+			selected_character.load_out.left_hand.drawItem() : l, 2, 1);
+		equip.add((selected_character.load_out.head != null) ?
+			selected_character.load_out.head.drawItem() : h, 1, 0);
+		equip.add((selected_character.load_out.body != null) ?
+			selected_character.load_out.body.drawItem() : b, 1, 1);
+		equip.add((selected_character.load_out.feet != null) ?
+			selected_character.load_out.feet.drawItem() : f, 1, 2);
 		
 		centerScreen();
 	}

@@ -1,6 +1,8 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class LoadOut {
 	Item right_hand;
@@ -9,7 +11,8 @@ public class LoadOut {
 	Item feet;
 	Item head;
 	
-	HashMap<String, Item> items = new HashMap<String,Item>();
+	//HashMap<String, Item> items = new HashMap<String,Item>();
+	List<Item> items = new ArrayList<Item>();
 	public LoadOut(Item r, Item l, Item h, Item b, Item f){
 		if(r != null)
 			r.equipped=true;
@@ -27,10 +30,28 @@ public class LoadOut {
 		body = b;
 		feet = f;
 		head = h;
-		items.put("right_hand", r);
-		items.put("left_hand", l);
-		items.put("body", b);
-		items.put("feet", f);
-		items.put("head", h);
+		items.add(r);
+		items.add(l);
+		items.add(b);
+		items.add(f);
+		items.add(h);
+	}
+	public void removeItem(Item item) {
+		items.remove(item);
+		if(item.equals(right_hand)) {
+			right_hand = null;
+		}
+		if(item.equals(left_hand)) {
+			left_hand = null;
+		}
+		if(item.equals(head)) {
+			head = null;
+		}
+		if(item.equals(body)) {
+			body = null;
+		}
+		if(item.equals(feet)) {
+			feet = null;
+		}
 	}
 }

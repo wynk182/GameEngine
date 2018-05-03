@@ -54,7 +54,7 @@ public class Character{
 	
 	public int attack() {
 		int power = this.attack;
-		for(Item i : load_out.items.values()){
+		for(Item i : load_out.items){
 			power += (i != null) ? i.attack_bonus : 0;
 			
 		}
@@ -62,7 +62,7 @@ public class Character{
 	}
 	public int defense() {
 		int power = this.defense;
-		for(Item i : load_out.items.values()){
+		for(Item i : load_out.items){
 			power += (i != null) ? i.defense_bonus : 0;
 			
 		}
@@ -70,7 +70,7 @@ public class Character{
 	}
 	public int health() {
 		int power = this.health;
-		for(Item i : load_out.items.values()){
+		for(Item i : load_out.items){
 			power += (i != null) ? i.health_bonus : 0;
 			
 		}
@@ -78,7 +78,7 @@ public class Character{
 	}
 	public int moves() {
 		int power = this.moves;
-		for(Item i : load_out.items.values()){
+		for(Item i : load_out.items){
 			power += (i != null) ? i.move_bonus : 0;
 			
 		}
@@ -88,7 +88,7 @@ public class Character{
 	public void setLoadOut(LoadOut load_out){
 		this.load_out = load_out;
 		this.current_health = health();
-		for(Item i : load_out.items.values()) {
+		for(Item i : load_out.items) {
 			if(i != null)
 				System.out.println("Wearing: " + i.name);
 		}
@@ -96,6 +96,9 @@ public class Character{
 	
 	public void equipItem(Item item, String slot){
 		
+	}
+	public void removeItem(Item item) {
+		this.load_out.removeItem(item);
 	}
 	
 	public boolean move1Space() {
