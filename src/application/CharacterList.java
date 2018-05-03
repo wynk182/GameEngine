@@ -11,7 +11,7 @@ public class CharacterList extends ArrayList<Character>{
 	int current_character = 0;
 	
 	public Character getNext() {
-		System.out.println(current_character);
+		//System.out.println(current_character);
 		if(++current_character < this.size()) {
 			return this.get(current_character);
 		}

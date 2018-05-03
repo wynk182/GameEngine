@@ -54,6 +54,7 @@ public class Main extends Application {
 			defend_button.setFocusTraversable(false);
 
 			grid.setGridLinesVisible(true);
+			
 
 			for(int i = 0; i < 11; i++) {
 	            ColumnConstraints column = new ColumnConstraints(50);
@@ -101,6 +102,7 @@ public class Main extends Application {
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
 			setActiveCharacter();
+			grid.add(selected_character, 5, 5);
 			//bp.setCenter(grid);
 			//bp.setLeft(action_box);
 			bp.getChildren().addAll(grid,action_box);
@@ -139,8 +141,8 @@ public class Main extends Application {
 		        	}
 		        	System.out.println(spaceOccupied(x,y));
 		        	if(!spaceOccupied(x,y) && selected_character.move1Space()) {
-		        		grid.getChildren().remove(selected_character.block);
-			        	grid.add(selected_character.drawCharacter(), x, y);
+		        		grid.getChildren().remove(selected_character);
+			        	grid.add(selected_character, x, y);
 			        	//game_board.get(y).put(x, 10);
 			        	selected_character.coordinates = new int[] {x,y};
 		        		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
@@ -203,20 +205,26 @@ public class Main extends Application {
 	}
 	
 	public static boolean inRange(Character defender) {
-		double distance = distance(selected_character.coordinates, defender.coordinates);
-		if(selected_character.weapon.range <= distance)
+		int[] att = new int[]{GridPane.getColumnIndex(selected_character),
+				GridPane.getRowIndex(selected_character)};
+		int[] def = new int[]{GridPane.getColumnIndex(defender),
+				GridPane.getRowIndex(defender)};
+		double distance = distance(att, def);
+		System.out.println(distance);
+		System.out.println(selected_character.range());
+		if(selected_character.range() <= distance)
 			return false;
 		int r,c;
 		for(r=0;r<game_board.length;r++) {
 			for(c=0;c<game_board[r].length;c++) {
-				if((distance(selected_character.coordinates,new int[] {c,r}) + distance(new int[] {c,r},defender.coordinates) == distance) 
-						&& game_board[r][c] > 8) {
-					
+				if((distance(att,new int[] {c,r}) + distance(new int[] {c,r},def) == distance) 
+						&& game_board[r][c] > 8) {					
 					return false;
 				}
 			}
 		}
-		return selected_character.weapon.range >= distance;
+		
+		return selected_character.range() >= distance;
 	}
 	
 	public static double round(double value, int places) {

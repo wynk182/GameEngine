@@ -179,6 +179,18 @@ public class DBController {
 			pstmt.setString(7, "Male");
 			pstmt.execute();
 			pstmt.close();
+			sql = "insert into characters (name,spec,health,attack,defense,moves,gender) "
+					+ "values (?,?,?,?,?,?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, "Peep");
+			pstmt.setInt(2, 0);
+			pstmt.setInt(3, 100);
+			pstmt.setInt(4, 5);
+			pstmt.setInt(5, 5);
+			pstmt.setInt(6, 2);
+			pstmt.setString(7, "Male");
+			pstmt.execute();
+			pstmt.close();
 			sql = "insert into items (name,item_type,attack_bonus,defense_bonus,move_bonus,"
 					+ "health_bonus,worth,range) "
 					+ "values (?,?,?,?,?,?,?,?);";
@@ -244,6 +256,17 @@ public class DBController {
 			pstmt.setInt(4, 0);
 			pstmt.setInt(5, 0);
 			pstmt.setInt(6, 3);			
+			pstmt.execute();
+			pstmt.close();
+			sql = "insert into loadouts (character_id,right_hand,left_hand,body,head,feet) "
+					+ "values (?,?,?,?,?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, 2);
+			pstmt.setInt(2, 0);
+			pstmt.setInt(3, 0);
+			pstmt.setInt(4, 0);
+			pstmt.setInt(5, 0);
+			pstmt.setInt(6, 0);			
 			pstmt.execute();
 			pstmt.close();
 			

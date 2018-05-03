@@ -5,23 +5,25 @@ import java.io.File;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-public class Character{
+public class Character extends Rectangle{
 	
 	public LoadOut load_out;
 	public String name = "Buster";
 	public String gender = "Male";
-	public int current_health;
+	public int damage_taken;
 	private int health;
 	private int attack;
 	private int defense;
 	private int moves;	
+	private int range =1;
 	public int has_moved = 0;
 	boolean has_attacked = false;
 	public CharacterClass spec = Specialization.Peasant.getSpec();
 	Weapon weapon = Weapons.None.getWeapon();
-	Rectangle block = new Rectangle(1,1, 50, 50);
+	//Rectangle block = new Rectangle(1,1, 50, 50);
 	
 	public int[] coordinates;
 	
@@ -29,24 +31,28 @@ public class Character{
 		this.health = h;
 		this.attack = a;
 		this.defense = d;
-		this.moves = m;
-		block.setOnMouseClicked(e -> {			
+		this.moves = m;		
+		this.setWidth(35);
+		this.setHeight(35);
+		this.setFill(Color.BLUE);
+		this.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
+		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this)) {
 				attacker.has_attacked = true;
 				int damage = (int) (Math.random() * 20) + attacker.attack;
 				
-				this.current_health -= (damage < defense()) ? 0 : damage-defense();
+				this.damage_taken += (damage < defense()) ? 0 : damage-defense();
 				
-				if(this.current_health < 0) {
-					this.block.setVisible(false);
+				if(this.damage_taken >= health()) {
+					this.setVisible(false);
 					Main.characters.remove(this);
 					System.out.println(this.name + " takes " + damage + " damage from " 
 							+ attacker.name + " and has died");
 				}
 				else {
 					System.out.println(this.name + " takes " + damage + " damage from " 
-							+ attacker.name + " and defends "+ defense() +" and now has " + this.current_health + " health");
+							+ attacker.name + " and defends "+ defense() +" and now has " + (health() - this.damage_taken) + " health");
 				}
 			}			
 		});
@@ -78,6 +84,13 @@ public class Character{
 		int power = this.moves;
 		for(Node i : load_out.getChildren()){			
 			power += ((Item) i).move_bonus;			
+		}
+		return power;
+	}
+	public int range(){
+		int power = range;
+		for(Node i : load_out.getChildren()){			
+			power += ((Item) i).range;			
 		}
 		return power;
 	}
@@ -144,7 +157,7 @@ public class Character{
 		}
 		return false;
 	}
-	*/
+	
 	
 	public Rectangle drawCharacter() {
 		block.setFill(spec.color);
@@ -152,5 +165,6 @@ public class Character{
 		block.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
 		return block;
 	}
+	*/
 	
 }
