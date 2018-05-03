@@ -10,7 +10,7 @@ public class Character{
 	public int health;
 	public int attack;
 	public int defense;
-	public int moves;
+	public int moves;	
 	public int has_moved = 0;
 	boolean has_attacked = false;
 	public CharacterClass spec = Specialization.Peasant.getSpec();
@@ -43,8 +43,28 @@ public class Character{
 		//System.out.println(this.name + " is a " + spec + " with " + this.health + " health.");
 	}
 	
-	public void applyLoadOut(LoadOut load_out){
-		
+	public void setLoadOut(LoadOut load_out){
+		this.load_out = load_out;
+		for(Item i : load_out.items.values()){
+			this.attack += i.attack_bonus;
+			this.defense += i.defense_bonus;
+			this.moves += i.move_bonus;
+			this.health += i.health_bonus;
+		}
+	}
+	
+	public void equipItem(Item item, String slot){
+		Item removed = this.load_out.items.remove(slot);
+		if(removed != null){
+			this.attack -= removed.attack_bonus;
+			this.defense -= removed.defense_bonus;
+			this.moves -= removed.move_bonus;
+			this.health -= removed.health_bonus;
+		}
+		this.attack += item.attack_bonus;
+		this.defense += item.defense_bonus;
+		this.moves += item.move_bonus;
+		this.health += item.health_bonus;
 	}
 	
 	public boolean move1Space() {

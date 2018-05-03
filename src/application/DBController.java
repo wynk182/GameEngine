@@ -70,7 +70,8 @@ public class DBController {
 				character.attack = characters.getInt("attack");
 				character.defense = characters.getInt("defense");
 				character.moves = characters.getInt("moves");
-				character.applyLoadOut(load_out);
+				character.coordinates = new int[]{0,0};
+				character.setLoadOut(load_out);
 				Main.characters.add(character);
 				System.out.println("Item in right hand is " + character.load_out.right_hand.name);
 			}
