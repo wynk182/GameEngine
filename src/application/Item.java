@@ -1,9 +1,6 @@
 package application;
 
-import javafx.scene.Cursor;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
+import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -17,42 +14,9 @@ public class Item {
 	int worth = 0;
 	int range = 0;
 	boolean equipped = false;
-	double x = 0;
-	double y = 0;
+	Rectangle item  = new Rectangle(1,1,20,20);
 	
-	public Rectangle drawItem() {
-		Rectangle item  = new Rectangle(1,1,20,20);
-		item.setFill(Color.RED);
-		item.setStyle("-fx-cursor: hand;");
-		
-		/*
-		item.setOnMouseClicked(e -> {
-			System.out.println(name);
-			Main.item_info.setText("Item info:\n" + name + "\nAttack:" + attack_bonus 
-					+ "\nDefense:" + defense_bonus + "\nMove:" + move_bonus 
-					+ "\nHealth:" + health_bonus + "\nValue:" + worth + "\nRange:" + range);
-		});
-		
-		item.setOnDragDetected(e ->{
-			if(equipped) {
-				equipped = false;
-			}
-			else {
-				equipped = true;
-			}
-			Dragboard db = item.startDragAndDrop(TransferMode.ANY);
-	        
-	        ClipboardContent content = new ClipboardContent();
-	        content.putString(this.name);
-	        db.setContent(content);
-	        
-	        e.consume();
-			System.out.println(equipped);
-			//Main.selected_character.load_out.items.get(key)
-		});
-		*/
-		//Delta dragDelta = new Delta();
-		
+	public Item() {
 		item.setOnMousePressed(e -> {
 		    // record a delta distance for the drag and drop operation.
 			
@@ -68,8 +32,11 @@ public class Item {
 			if(equipped) {
 				equipped = false;
 				Main.selected_character.removeItem(this);
+				int r = GridPane.getRowIndex(item);
+				int c = GridPane.getColumnIndex(item);
 				Main.equip.getChildren().remove(item);
-				//Main.equip.row
+				Main.equip.add(new Rectangle(1,1,20,20), c, r);
+				//Main.equip.getChildren().get(0).rowIndex;
 				item.setLayoutX(e.getSceneX());
 				item.setLayoutY(e.getSceneY());
 				Main.backpack.addToBackPack(item);
@@ -79,6 +46,13 @@ public class Item {
 			}
 			
 		});
+	}
+
+	public Rectangle drawItem() {
+		item.setFill(Color.RED);
+		item.setStyle("-fx-cursor: hand;");
+		
+		
 		
 		return item;
 	}
