@@ -139,7 +139,7 @@ public class Main extends Application {
 		        		x = selected_character.coordinates[0];
 						break;
 		        	}
-		        	System.out.println(spaceOccupied(x,y));
+		        	//System.out.println(spaceOccupied(x,y));
 		        	if(!spaceOccupied(x,y) && selected_character.move1Space()) {
 		        		grid.getChildren().remove(selected_character);
 			        	grid.add(selected_character, x, y);
@@ -178,7 +178,7 @@ public class Main extends Application {
 		selected_character.has_attacked = false;
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
-				+ "\nHP: " + selected_character.health()
+				+ "\nHP: " + (selected_character.health() - selected_character.damage_taken)
 				+ "\nAttack: " + selected_character.attack() 
 				+ "\nDefense: " + selected_character.defense()
 				);
@@ -205,20 +205,24 @@ public class Main extends Application {
 	}
 	
 	public static boolean inRange(Character defender) {
-		int[] att = new int[]{GridPane.getColumnIndex(selected_character),
-				GridPane.getRowIndex(selected_character)};
-		int[] def = new int[]{GridPane.getColumnIndex(defender),
-				GridPane.getRowIndex(defender)};
-		double distance = distance(att, def);
+		//int[] att = new int[]{GridPane.getColumnIndex(selected_character),
+		//		GridPane.getRowIndex(selected_character)};
+		//int[] def = new int[]{GridPane.getColumnIndex(defender),
+		//		GridPane.getRowIndex(defender)};
+		double distance = distance(selected_character.coordinates, defender.coordinates);
 		System.out.println(distance);
-		System.out.println(selected_character.range());
-		if(selected_character.range() <= distance)
+		//System.out.println(selected_character.range());
+		if(selected_character.range() < distance)
 			return false;
 		int r,c;
 		for(r=0;r<game_board.length;r++) {
 			for(c=0;c<game_board[r].length;c++) {
-				if((distance(att,new int[] {c,r}) + distance(new int[] {c,r},def) == distance) 
+				
+
+				if(((distance(selected_character.coordinates,new int[] {c,r}) + distance(new int[] {c,r},defender.coordinates)) == distance) 
 						&& game_board[r][c] > 8) {					
+					System.out.println(distance(selected_character.coordinates,new int[] {c,r}));
+					System.out.println(distance(defender.coordinates,new int[] {c,r}));
 					return false;
 				}
 			}
@@ -240,7 +244,7 @@ public class Main extends Application {
 				Math.pow((a[1] - b[1]), 2) 
 				+ Math.pow((a[0] - b[0]), 2));
 		//System.out.println(distance);
-		return round(distance,1);
+		return round(distance,2);
 	}
 		
 	public void centerScreen() {

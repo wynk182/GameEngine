@@ -247,6 +247,20 @@ public class DBController {
 			pstmt.setInt(8, 0);
 			pstmt.execute();
 			pstmt.close();
+			sql = "insert into items (name,item_type,attack_bonus,defense_bonus,move_bonus,"
+					+ "health_bonus,worth,range) "
+					+ "values (?,?,?,?,?,?,?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, "Rifle");
+			pstmt.setString(2, "right");
+			pstmt.setInt(3, 20);
+			pstmt.setInt(4, 0);
+			pstmt.setInt(5, 0);
+			pstmt.setInt(6, 0);
+			pstmt.setInt(7, 150);
+			pstmt.setInt(8, 12);
+			pstmt.execute();
+			pstmt.close();
 			sql = "insert into loadouts (character_id,right_hand,left_hand,body,head,feet) "
 					+ "values (?,?,?,?,?,?);";
 			pstmt = conn.prepareStatement(sql);

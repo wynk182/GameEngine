@@ -18,7 +18,7 @@ public class Character extends Rectangle{
 	private int attack;
 	private int defense;
 	private int moves;	
-	private int range =1;
+	private int range =0;
 	public int has_moved = 0;
 	boolean has_attacked = false;
 	public CharacterClass spec = Specialization.Peasant.getSpec();
@@ -32,15 +32,20 @@ public class Character extends Rectangle{
 		this.attack = a;
 		this.defense = d;
 		this.moves = m;		
-		this.setWidth(35);
-		this.setHeight(35);
+		this.setWidth(50);
+		this.setHeight(50);
 		this.setFill(Color.BLUE);
 		this.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
 		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;
+			//System.out.println(attacker != null);
+			//System.out.println(Main.inRange(this));
+			//System.out.println(!attacker.has_attacked);
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this)) {
 				attacker.has_attacked = true;
-				int damage = (int) (Math.random() * 20) + attacker.attack;
+				int roll = (int) (Math.random() * 20);
+				//System.out.println(roll);
+				int damage = roll + attacker.attack();
 				
 				this.damage_taken += (damage < defense()) ? 0 : damage-defense();
 				

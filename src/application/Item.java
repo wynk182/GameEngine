@@ -35,8 +35,9 @@ public class Item extends Rectangle{
 				Main.backpack.addToBackPack(this);
 			}
 			else {
-				Main.selected_character.load_out.equipItem(this, this.item_type);
 				Main.backpack.removeFromBackPack(this);
+				Main.selected_character.load_out.equipItem(this, this.item_type);
+				
 			}
 			
 		});
