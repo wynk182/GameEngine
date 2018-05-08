@@ -210,27 +210,36 @@ public class Main extends Application {
 		//int[] def = new int[]{GridPane.getColumnIndex(defender),
 		//		GridPane.getRowIndex(defender)};
 		double distance = distance(selected_character.coordinates, defender.coordinates);
-		System.out.println(distance);
+		
+		
 		//System.out.println(selected_character.range());
 		if(selected_character.range() < distance)
 			return false;
 		int r,c;
 		for(r=0;r<game_board.length;r++) {
-			for(c=0;c<game_board[r].length;c++) {
-				
-
-				if(((distance(selected_character.coordinates,new int[] {c,r}) + distance(new int[] {c,r},defender.coordinates)) == distance) 
-						&& game_board[r][c] > 8) {					
-					System.out.println(distance(selected_character.coordinates,new int[] {c,r}));
-					System.out.println(distance(defender.coordinates,new int[] {c,r}));
-					return false;
-				}
+			for(c=0;c<game_board[r].length;c++) {	
+				if(game_board[r][c] > 8){
+					System.out.println(distance);
+					System.out.println((distance(selected_character.coordinates,new int[] {c,r}) + distance(defender.coordinates,new int[] {c,r})));
+					//System.out.println(distance(defender.coordinates,new int[] {c,r}));
+					//System.out.println(game_board[r][c] > 8);
+					double test = distance(selected_character.coordinates,new int[] {c,r}) + distance(defender.coordinates,new int[] {c,r});
+					double tested = 0;
+					if(distance > test)
+						tested = distance - test;
+					else
+						tested = test - distance;
+					
+					if(tested < .5)
+						return false;
+						//System.out.println("Close enough");
+					System.out.println();
+				}					
 			}
-		}
-		
-		return selected_character.range() >= distance;
+		}		
+		return true;
 	}
-	
+	/*
 	public static double round(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
 
@@ -238,13 +247,13 @@ public class Main extends Application {
 	    bd = bd.setScale(places, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
 	}
-	
+	*/
 	public static double distance(int[] a, int[] b) {
 		double distance = Math.sqrt(
 				Math.pow((a[1] - b[1]), 2) 
 				+ Math.pow((a[0] - b[0]), 2));
 		//System.out.println(distance);
-		return round(distance,2);
+		return distance;//round(distance,0);
 	}
 		
 	public void centerScreen() {
