@@ -42,7 +42,7 @@ public class Character extends Rectangle{
 				attacker.has_attacked = true;
 				int roll = (int) (Math.random() * 20);
 				int damage = roll + attacker.attack();
-				Label l = new Label("" + damage);
+				Label l = new Label("" + (damage-defense()));
 				StackPane att = new StackPane();
 				att.getChildren().addAll(new ImageView(Main.damage), l);
 				Main.damage_box.showInfo(att,e.getSceneX()-50,e.getSceneY()-10);
@@ -124,10 +124,11 @@ public class Character extends Rectangle{
 	}
 	
 	public boolean move1Space() {
-		if(has_moved++ >= moves()) {
+		if(has_moved >= moves()) {			
 			//has_moved = 0;
 			return false;
 		}
+		has_moved++;
 		return true;
 	}
 	

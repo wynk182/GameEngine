@@ -50,8 +50,14 @@ public class Item extends Rectangle{
 		this.setOnMouseEntered(e -> {
 			Label l = new Label();
 			String info = this.name 
-					+ "\natt: " + this.attack_bonus
-					+ "\ndef: " + this.defense_bonus;
+					//+ "\n" + this.item_type					
+					+ ((this.attack_bonus != 0)? "\natt: " + this.attack_bonus : "")
+					+ ((this.defense_bonus != 0)? "\ndef: " + this.defense_bonus : "")
+					+ ((this.move_bonus != 0)? "\nmv: " + this.move_bonus : "")
+					+ ((this.health_bonus != 0)? "\nhp: " + this.health_bonus : "")
+					+ ((this.range != 0)? "\nrng: " + this.range : "")
+					+ ((this.worth != 0)? "\ngp: " + this.worth : "")
+					;
 			l = new Label(info);
 			Main.info.showInfo(l, e.getSceneX(), e.getSceneY());			
 		});

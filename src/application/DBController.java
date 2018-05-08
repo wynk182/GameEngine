@@ -55,6 +55,27 @@ public class DBController {
 		}
 	}
 	
+	public static Account loadMyAccount(Connection conn){
+		String sql = "select * from account;";
+		ResultSet account;
+		Account me = new Account();
+		try {
+			account = conn.createStatement().executeQuery(sql);
+			while(account.next()){				
+				me.name = account.getString("name");
+				me.auth_code = account.getString("auth_code");
+				me.my_gold = account.getInt("my_gold");
+				me.my_wins = account.getInt("my_wins");
+				me.my_losses = account.getInt("my_losses");
+				me.new_account = account.getBoolean("new_account");
+			}
+			account.close();
+		} catch (SQLException e) {			
+			e.printStackTrace();
+		}	
+		return me;
+	}
+	
 	public static void loadCharacters(Connection conn){
 		
 		try {
@@ -153,6 +174,18 @@ public class DBController {
 	                + " body integer,\n"
 	                + " head integer,\n"
 	                + " feet integer\n"
+	                + ");";
+			stmt = conn.createStatement();
+			stmt.execute(sql);
+			stmt.close();
+			sql = "CREATE TABLE IF NOT EXISTS account (\n"
+	                + "	id integer PRIMARY KEY AUTOINCREMENT,\n"
+	                + "	name text NOT NULL,\n"
+	                + "	auth_code text,\n"
+	                + " my_gold integer,\n"
+	                + " my_wins integer,\n"
+	                + " my_losses integer,\n"
+	                + " new_account bit\n"	                
 	                + ");";
 			stmt = conn.createStatement();
 			stmt.execute(sql);
@@ -282,6 +315,17 @@ public class DBController {
 			pstmt.setInt(4, 0);
 			pstmt.setInt(5, 0);
 			pstmt.setInt(6, 0);			
+			pstmt.execute();
+			pstmt.close();
+			sql = "insert into account (name,auth_code,my_gold,my_wins,my_losses,new_account) "
+					+ "values (?,?,?,?,?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, "");
+			pstmt.setString(2, "");
+			pstmt.setInt(3, 100);
+			pstmt.setInt(4, 0);
+			pstmt.setInt(5, 0);
+			pstmt.setBoolean(6, false);
 			pstmt.execute();
 			pstmt.close();
 			

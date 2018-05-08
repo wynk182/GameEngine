@@ -6,9 +6,9 @@ import java.util.HashMap;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -22,6 +22,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
+	static Account me = new Account();
 	static int board_width = 550;
 	static int board_height = 550;
 	static int box_size = 25;
@@ -36,6 +37,7 @@ public class Main extends Application {
 	static Pane bp = new Pane();
 	Label character_info = new Label();
 	Label moves = new Label();
+	int zoom = 2;
 	//Button attack_button = new Button("Attack");
 	//Button defend_button = new Button("Defend");
 	//Rectangle r = new Rectangle(1,1,20,20);
@@ -47,7 +49,7 @@ public class Main extends Application {
 
 	static 	BackPack backpack = new BackPack();
 	//static Dragboard db;
-	static int[][] game_board = new int[22][22];
+	static int[][] game_board = new int[100][100];
 	static Label item_info = new Label("Item info:");
 	static CharacterList characters = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
@@ -55,24 +57,34 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			System.out.println(me.my_gold + "");
+			/*
+			if(me.new_account){
+				// Setup new account
+				VBox gp = new VBox();
+				Label lb = new Label("Enter Your Name Adventurer!");
+				TextField tf = new TextField();
+				gp.getChildren().addAll(lb,tf);
+				Scene setup_scene = new Scene(gp,200,200);
+				primaryStage.setScene(setup_scene);
+			}
+			*/
 			characters.myTeam = true;
 			//attack_button.setFocusTraversable(false);
 			//defend_button.setFocusTraversable(false);
 
-			grid.setGridLinesVisible(true);
-			
-			setZoom(box_size);
+			grid.setGridLinesVisible(true);	
 			
 	        for(int r = 0; r < game_board.length; r++) {
 	        	for(int c = 0; c < game_board[r].length; c++) {
 	        		int obj = (int)(Math.random()*10);
 	        		game_board[r][c] = obj;
-	        		if(obj > 8) {
+	        		if(obj > 7) {
 	        			Rectangle seed = new Rectangle(1,1, box_size, box_size);
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
 	        		}
-	        		else if(obj > 7){
+	        		else if(obj > 6){
 	        			Rectangle gold = new Rectangle(1,1, box_size/2, box_size/2);
 	        			gold.setFill(Color.GOLD);
 	        			grid.add(gold, c,r);
@@ -96,6 +108,7 @@ public class Main extends Application {
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
 			setActiveCharacter();
+			setZoom(box_size);
 			grid.add(selected_character, 5, 5);
 			
 			bp.getChildren().addAll(grid,action_box,info, damage_box);
@@ -128,6 +141,7 @@ public class Main extends Application {
 		        		x = selected_character.coordinates[0] + 1;
 		        		break;
 		        	case MINUS :
+		        		zoom = 2;
 		        		box_size = 25;
 		        		setZoom(box_size);
 		        		for(Character c : characters) {
@@ -135,6 +149,7 @@ public class Main extends Application {
 		        		}
 		        		break;
 		        	case EQUALS :
+		        		zoom = 1;
 		        		box_size = 50;
 		        		setZoom(box_size);
 		        		for(Character c : characters) {
@@ -156,17 +171,6 @@ public class Main extends Application {
 			        	selected_character.coordinates = new int[] {x,y};
 		        		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		        		centerScreen();
-
-
-			        	/*
-			        	if(!selected_character.move1Space()) {
-		        			selected_character = characters.getNext();
-		        			System.out.println(selected_character.coordinates[0] * 50);
-		        			System.out.println(selected_character.name);
-		        			centerScreen();
-		        			
-			        	}
-			        	*/
 		        	}
 		        	
 	        	}
@@ -185,8 +189,8 @@ public class Main extends Application {
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
 		selected_character = characters.getNext();
-		//selected_character.has_moved = 0;
-		//selected_character.has_attacked = false;
+		selected_character.has_moved = 0;
+		selected_character.has_attacked = false;
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
 				+ "\nHP: " + (selected_character.health() - selected_character.damage_taken)
@@ -204,20 +208,21 @@ public class Main extends Application {
 	public void setZoom(int size) {
 		System.out.println(board_width/size);
 		System.out.println(board_height/size);
-		int columns = board_width/size;
-		int rows = board_height/size;
+		//int columns = board_width/size;
+		//int rows = board_height/size;
 		grid.getColumnConstraints().removeAll(grid.getColumnConstraints());
 		grid.getRowConstraints().removeAll(grid.getRowConstraints());
 		
-		for(int i = 0; i < 22; i++) {
+		for(int i = 0; i < game_board[0].length; i++) {
             ColumnConstraints column = new ColumnConstraints(size);
             grid.getColumnConstraints().add(column);
         }
 
-        for(int i = 0; i < 22; i++) {
+        for(int i = 0; i < game_board.length; i++) {
             RowConstraints row = new RowConstraints(size);
             grid.getRowConstraints().add(row);
         }
+        centerScreen();
 	}
 	
 	public static boolean inRange(Character defender) {
@@ -262,16 +267,15 @@ public class Main extends Application {
 		
 	public void centerScreen() {
 		//bp.getChildren().get(0).setLayoutX(value);
-		grid.setLayoutX((5 - selected_character.coordinates[0]) * box_size + 100);
-		grid.setLayoutY((5 - selected_character.coordinates[1]) * box_size);
-
+		grid.setLayoutX(((5*zoom) - selected_character.coordinates[0]) * box_size + 100);
+		grid.setLayoutY(((5*zoom) - selected_character.coordinates[1]) * box_size);
 	}
 	
 	public boolean spaceOccupied(int x, int y) {
 		//System.out.println(game_board.get(y).get(x));
-		if(game_board[y][x] > 8) 
+		if(game_board[y][x] > 7) 
 			return true;
-		else if(game_board[y][x] > 7) {
+		else if(game_board[y][x] > 6) {
 			System.out.println("GOLD");
 			game_board[y][x] = 0;
 			
@@ -294,9 +298,13 @@ public class Main extends Application {
 			seed = false;
 		Connection c = DBController.connect();
 		DBController.createTables(c);
-		if(seed)
+		if(seed){
 			DBController.seedData(c);
+		}
+		me = DBController.loadMyAccount(c);
+		
 		DBController.loadCharacters(c);
+		
 		try{
 			c.close();
 		}
