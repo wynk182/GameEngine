@@ -102,6 +102,7 @@ public class DBController {
 				character.gender = characters.getString("gender");
 				character.coordinates = new int[]{5,5};
 				character.load_out = load_out;
+				character.setTriggers();
 				//character.setLoadOut(load_out);
 				Main.characters.add(character);
 				//System.out.println("Item in right hand is " + load_out.right_hand.name);

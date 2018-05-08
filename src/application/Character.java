@@ -4,6 +4,7 @@ import java.io.File;
 
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -21,8 +22,8 @@ public class Character extends Rectangle{
 	private int range =0;
 	public int has_moved = 0;
 	boolean has_attacked = false;
-	public CharacterClass spec = Specialization.Peasant.getSpec();
-	Weapon weapon = Weapons.None.getWeapon();
+	//public CharacterClass spec = Specialization.Peasant.getSpec();
+	
 	//Rectangle block = new Rectangle(1,1, 50, 50);
 	
 	public int[] coordinates;
@@ -37,14 +38,11 @@ public class Character extends Rectangle{
 		this.setFill(Color.BLUE);
 		this.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
 		this.setOnMouseClicked(e -> {			
-			Character attacker = Main.selected_character;
-			//System.out.println(attacker != null);
-			//System.out.println(Main.inRange(this));
-			//System.out.println(!attacker.has_attacked);
+			Character attacker = Main.selected_character;			
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this)) {
 				attacker.has_attacked = true;
 				int roll = (int) (Math.random() * 20);
-				//System.out.println(roll);
+				
 				int damage = roll + attacker.attack();
 				
 				this.damage_taken += (damage < defense()) ? 0 : damage-defense();
@@ -61,6 +59,7 @@ public class Character extends Rectangle{
 				}
 			}			
 		});
+		
 		//System.out.println(this.name + " is a " + spec + " with " + this.health + " health.");
 	}
 	
@@ -110,6 +109,17 @@ public class Character extends Rectangle{
 		}
 	}
 	*/
+	Label l = new Label();
+	public void setTriggers(){
+		l.setStyle("-fx-background-color: grey;");
+		this.setOnMouseEntered(e -> {	
+			l = new Label(this.health() - damage_taken + "");
+			Main.info.showInfo(l, e.getSceneX(), e.getSceneY());			
+		});
+		this.setOnMouseExited(e -> {
+			Main.info.hideInfo(l);
+		});
+	}
 	
 	public void equipItem(Item item, String slot){
 		
@@ -125,13 +135,13 @@ public class Character extends Rectangle{
 		}
 		return true;
 	}
-	
+	/*
 	public void equipWeapon(Weapons weapon) {
 		this.weapon = weapon.getWeapon();
 		this.attack += this.weapon.attack_bonus;
 		this.defense += this.weapon.defense_bonus;
 	}
-	
+	*/
 	/*
 	public boolean inRange(Character attacker, Character defender) {
 		int range = attacker.weapon.range;

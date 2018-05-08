@@ -1,8 +1,6 @@
 package application;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Connection;
 import java.util.HashMap;
 import javafx.application.Application;
@@ -26,6 +24,7 @@ import javafx.scene.shape.Rectangle;
 public class Main extends Application {
 	static Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	GridPane grid = new GridPane();
+	static InfoBox info = new InfoBox();
 	VBox action_box = new VBox();
 	static LoadOut equip = new LoadOut();
 	static Pane bp = new Pane();
@@ -105,7 +104,7 @@ public class Main extends Application {
 			grid.add(selected_character, 5, 5);
 			//bp.setCenter(grid);
 			//bp.setLeft(action_box);
-			bp.getChildren().addAll(grid,action_box);
+			bp.getChildren().addAll(grid,action_box,info);
 	        Scene scene = new Scene(bp,650,550);
 	        scene.setOnKeyPressed(e -> {
 	        	System.out.println(e.getCode());
@@ -169,7 +168,7 @@ public class Main extends Application {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}	
 	
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
@@ -205,35 +204,23 @@ public class Main extends Application {
 	}
 	
 	public static boolean inRange(Character defender) {
-		//int[] att = new int[]{GridPane.getColumnIndex(selected_character),
-		//		GridPane.getRowIndex(selected_character)};
-		//int[] def = new int[]{GridPane.getColumnIndex(defender),
-		//		GridPane.getRowIndex(defender)};
-		double distance = distance(selected_character.coordinates, defender.coordinates);
 		
-		
+		double distance = distance(selected_character.coordinates, defender.coordinates);	
 		//System.out.println(selected_character.range());
 		if(selected_character.range() < distance)
 			return false;
 		int r,c;
 		for(r=0;r<game_board.length;r++) {
 			for(c=0;c<game_board[r].length;c++) {	
-				if(game_board[r][c] > 8){
-					System.out.println(distance);
-					System.out.println((distance(selected_character.coordinates,new int[] {c,r}) + distance(defender.coordinates,new int[] {c,r})));
-					//System.out.println(distance(defender.coordinates,new int[] {c,r}));
-					//System.out.println(game_board[r][c] > 8);
+				if(game_board[r][c] > 8){					
 					double test = distance(selected_character.coordinates,new int[] {c,r}) + distance(defender.coordinates,new int[] {c,r});
 					double tested = 0;
 					if(distance > test)
 						tested = distance - test;
 					else
-						tested = test - distance;
-					
+						tested = test - distance;					
 					if(tested < .5)
-						return false;
-						//System.out.println("Close enough");
-					System.out.println();
+						return false;						
 				}					
 			}
 		}		
