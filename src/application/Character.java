@@ -6,6 +6,8 @@ import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -22,9 +24,6 @@ public class Character extends Rectangle{
 	private int range =0;
 	public int has_moved = 0;
 	boolean has_attacked = false;
-	//public CharacterClass spec = Specialization.Peasant.getSpec();
-	
-	//Rectangle block = new Rectangle(1,1, 50, 50);
 	
 	public int[] coordinates;
 	
@@ -39,27 +38,24 @@ public class Character extends Rectangle{
 		this.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
 		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;			
-			if(attacker != null && !attacker.has_attacked && Main.inRange(this)) {
+			if(attacker != null && !attacker.has_attacked && Main.inRange(this) && !attacker.equals(this)) {
 				attacker.has_attacked = true;
 				int roll = (int) (Math.random() * 20);
-				
 				int damage = roll + attacker.attack();
-				
+				Label l = new Label("" + damage);
+				StackPane att = new StackPane();
+				att.getChildren().addAll(new ImageView(Main.damage), l);
+				Main.damage_box.showInfo(att,e.getSceneX()-50,e.getSceneY()-10);
+				DamageTask dt = new DamageTask(Main.damage_box, 1);
+				dt.start();
+				//Platform.runLater(new DamageTask(Main.damage_box, 5));
 				this.damage_taken += (damage < defense()) ? 0 : damage-defense();
-				
 				if(this.damage_taken >= health()) {
 					this.setVisible(false);
-					Main.characters.remove(this);
-					System.out.println(this.name + " takes " + damage + " damage from " 
-							+ attacker.name + " and has died");
-				}
-				else {
-					System.out.println(this.name + " takes " + damage + " damage from " 
-							+ attacker.name + " and defends "+ defense() +" and now has " + (health() - this.damage_taken) + " health");
+					Main.characters.remove(this);	
 				}
 			}			
 		});
-		
 		//System.out.println(this.name + " is a " + spec + " with " + this.health + " health.");
 	}
 	
@@ -98,7 +94,6 @@ public class Character extends Rectangle{
 		}
 		return power;
 	}
-	
 	/*
 	public void setLoadOut(LoadOut load_out){
 		this.load_out = load_out;
@@ -109,23 +104,19 @@ public class Character extends Rectangle{
 		}
 	}
 	*/
-	Label l = new Label();
 	public void setTriggers(){
-		l.setStyle("-fx-background-color: grey;");
-		this.setOnMouseEntered(e -> {	
-			l = new Label(this.health() - damage_taken + "");
+		this.setOnMouseEntered(e -> {
+			Label l = new Label();
+			String info = this.name 
+					+ "\nHealth: " + (this.health() - damage_taken)
+					+ "\nAttack: " + this.attack()
+					+ "\nDefense: " + this.defense();
+			l = new Label(info);
 			Main.info.showInfo(l, e.getSceneX(), e.getSceneY());			
 		});
 		this.setOnMouseExited(e -> {
-			Main.info.hideInfo(l);
+			Main.info.hideInfo();
 		});
-	}
-	
-	public void equipItem(Item item, String slot){
-		
-	}
-	public void removeItem(Item item) {
-		this.load_out.removeItem(item);
 	}
 	
 	public boolean move1Space() {
@@ -135,51 +126,6 @@ public class Character extends Rectangle{
 		}
 		return true;
 	}
-	/*
-	public void equipWeapon(Weapons weapon) {
-		this.weapon = weapon.getWeapon();
-		this.attack += this.weapon.attack_bonus;
-		this.defense += this.weapon.defense_bonus;
-	}
-	*/
-	/*
-	public boolean inRange(Character attacker, Character defender) {
-		int range = attacker.weapon.range;
-		//System.out.println(range);
-		if(attacker.coordinates[0] == defender.coordinates[0]) {
-			if(attacker.coordinates[1] > defender.coordinates[1]) {
-				if(attacker.coordinates[1] - defender.coordinates[1] <= range) {
-					return true;
-				}
-			}
-			else {
-				if(defender.coordinates[1] - attacker.coordinates[1] <= range) {
-					return true;
-				}
-			}
-		}
-		else if(attacker.coordinates[1] == defender.coordinates[1]) {
-			if(attacker.coordinates[0] > defender.coordinates[0]) {
-				if(attacker.coordinates[0] - defender.coordinates[0] <= range) {
-					return true;
-				}
-			}
-			else {
-				if(defender.coordinates[0] - attacker.coordinates[0] <= range) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 	
-	
-	public Rectangle drawCharacter() {
-		block.setFill(spec.color);
-		//block.setStyle("-fx-cursor: uri('cursor.png');");
-		block.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
-		return block;
-	}
-	*/
 	
 }

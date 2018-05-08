@@ -1,5 +1,6 @@
 package application;
 
+import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -24,7 +25,7 @@ public class Item extends Rectangle{
 		this.setOnMouseDragged(e -> {
 			if(equipped) {
 				equipped = false;
-				Main.selected_character.removeItem(this);
+				Main.selected_character.load_out.removeItem(this);
 				//int r = GridPane.getRowIndex(this);
 				//int c = GridPane.getColumnIndex(this);
 				Main.equip.getChildren().remove(this);
@@ -44,7 +45,20 @@ public class Item extends Rectangle{
 		this.setWidth(20);
 		this.setHeight(20);
 		this.setFill(Color.RED);
-		this.setStyle("-fx-cursor: hand;");		
+		this.setStyle("-fx-cursor: hand;");	
+		
+		this.setOnMouseEntered(e -> {
+			Label l = new Label();
+			String info = this.name 
+					+ "\natt: " + this.attack_bonus
+					+ "\ndef: " + this.defense_bonus;
+			l = new Label(info);
+			Main.info.showInfo(l, e.getSceneX(), e.getSceneY());			
+		});
+		this.setOnMouseExited(e -> {
+			Main.info.hideInfo();
+		});
+		
 	}		
 	
 }

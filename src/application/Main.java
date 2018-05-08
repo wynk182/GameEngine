@@ -7,7 +7,6 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -23,20 +22,23 @@ import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
 	static Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
+	static Image damage = new Image(new File("damage.png").toURI().toString());
 	GridPane grid = new GridPane();
-	static InfoBox info = new InfoBox();
+	static InfoBox info = new InfoBox("whitesmoke;");
+	static InfoBox damage_box = new InfoBox("transparent");
 	VBox action_box = new VBox();
 	static LoadOut equip = new LoadOut();
 	static Pane bp = new Pane();
 	Label character_info = new Label();
 	Label moves = new Label();
-	Button attack_button = new Button("Attack");
-	Button defend_button = new Button("Defend");
+	//Button attack_button = new Button("Attack");
+	//Button defend_button = new Button("Defend");
 	Rectangle r = new Rectangle(1,1,20,20);
 	Rectangle l = new Rectangle(1,1,20,20);
 	Rectangle h = new Rectangle(1,1,20,20);
 	Rectangle b = new Rectangle(1,1,20,20);
 	Rectangle f = new Rectangle(1,1,20,20);
+	int players = 2;
 
 	static 	BackPack backpack = new BackPack();
 	//static Dragboard db;
@@ -48,9 +50,9 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			
-			attack_button.setFocusTraversable(false);
-			defend_button.setFocusTraversable(false);
+			characters.myTeam = true;
+			//attack_button.setFocusTraversable(false);
+			//defend_button.setFocusTraversable(false);
 
 			grid.setGridLinesVisible(true);
 			
@@ -89,6 +91,7 @@ public class Main extends Application {
 				}
 			}
 			
+			
 			backpack.setPadding(new Insets(5));
 			equip.add(l, 0, 1);
 			equip.add(h, 1, 0);
@@ -104,7 +107,7 @@ public class Main extends Application {
 			grid.add(selected_character, 5, 5);
 			//bp.setCenter(grid);
 			//bp.setLeft(action_box);
-			bp.getChildren().addAll(grid,action_box,info);
+			bp.getChildren().addAll(grid,action_box,info, damage_box);
 	        Scene scene = new Scene(bp,650,550);
 	        scene.setOnKeyPressed(e -> {
 	        	System.out.println(e.getCode());
@@ -162,6 +165,8 @@ public class Main extends Application {
 	        	}
 	        	
 	        });
+	        bp.setStyle("-fx-background-color:darkgrey;");
+	        grid.setStyle("-fx-background-color:lightgreen;");
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
@@ -173,13 +178,13 @@ public class Main extends Application {
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
 		selected_character = characters.getNext();
-		selected_character.has_moved = 0;
-		selected_character.has_attacked = false;
+		//selected_character.has_moved = 0;
+		//selected_character.has_attacked = false;
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
 				+ "\nHP: " + (selected_character.health() - selected_character.damage_taken)
-				+ "\nAttack: " + selected_character.attack() 
-				+ "\nDefense: " + selected_character.defense()
+				//+ "\nAttack: " + selected_character.attack() 
+				//+ "\nDefense: " + selected_character.defense()
 				);
 		equip = selected_character.load_out;
 		action_box.getChildren().add(equip);
@@ -219,7 +224,7 @@ public class Main extends Application {
 						tested = distance - test;
 					else
 						tested = test - distance;					
-					if(tested < .5)
+					if(tested < .25)
 						return false;						
 				}					
 			}
@@ -254,6 +259,12 @@ public class Main extends Application {
 		//System.out.println(game_board.get(y).get(x));
 		if(game_board[y][x] > 8) 
 			return true;
+		else if(game_board[y][x] > 7) {
+			System.out.println("GOLD");
+			game_board[y][x] = 0;
+			
+			return false;
+		}
 		else {
 			for(Character c : characters) {
 				if(c.coordinates[0] == x && c.coordinates[1] == y)
