@@ -6,6 +6,7 @@ import java.util.HashMap;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -21,6 +22,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
+	static int board_width = 550;
+	static int board_height = 550;
+	static int box_size = 25;
+	//int box_height = 50;
 	static Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	static Image damage = new Image(new File("damage.png").toURI().toString());
 	GridPane grid = new GridPane();
@@ -33,16 +38,16 @@ public class Main extends Application {
 	Label moves = new Label();
 	//Button attack_button = new Button("Attack");
 	//Button defend_button = new Button("Defend");
-	Rectangle r = new Rectangle(1,1,20,20);
-	Rectangle l = new Rectangle(1,1,20,20);
-	Rectangle h = new Rectangle(1,1,20,20);
-	Rectangle b = new Rectangle(1,1,20,20);
-	Rectangle f = new Rectangle(1,1,20,20);
+	//Rectangle r = new Rectangle(1,1,20,20);
+	//Rectangle l = new Rectangle(1,1,20,20);
+	//Rectangle h = new Rectangle(1,1,20,20);
+	//Rectangle b = new Rectangle(1,1,20,20);
+	//Rectangle f = new Rectangle(1,1,20,20);
 	int players = 2;
 
 	static 	BackPack backpack = new BackPack();
 	//static Dragboard db;
-	static int[][] game_board = new int[11][11];
+	static int[][] game_board = new int[22][22];
 	static Label item_info = new Label("Item info:");
 	static CharacterList characters = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
@@ -56,27 +61,19 @@ public class Main extends Application {
 
 			grid.setGridLinesVisible(true);
 			
-
-			for(int i = 0; i < 11; i++) {
-	            ColumnConstraints column = new ColumnConstraints(50);
-	            grid.getColumnConstraints().add(column);
-	        }
-
-	        for(int i = 0; i < 11; i++) {
-	            RowConstraints row = new RowConstraints(50);
-	            grid.getRowConstraints().add(row);
-	        }
+			setZoom(box_size);
+			
 	        for(int r = 0; r < game_board.length; r++) {
 	        	for(int c = 0; c < game_board[r].length; c++) {
 	        		int obj = (int)(Math.random()*10);
 	        		game_board[r][c] = obj;
 	        		if(obj > 8) {
-	        			Rectangle seed = new Rectangle(1,1, 50, 50);
+	        			Rectangle seed = new Rectangle(1,1, box_size, box_size);
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
 	        		}
 	        		else if(obj > 7){
-	        			Rectangle gold = new Rectangle(1,1, 25, 25);
+	        			Rectangle gold = new Rectangle(1,1, box_size/2, box_size/2);
 	        			gold.setFill(Color.GOLD);
 	        			grid.add(gold, c,r);
 	        		}
@@ -91,13 +88,8 @@ public class Main extends Application {
 				}
 			}
 			
-			
 			backpack.setPadding(new Insets(5));
-			equip.add(l, 0, 1);
-			equip.add(h, 1, 0);
-			equip.add(b, 1, 1);
-			equip.add(f, 1, 2);
-			equip.add(r, 2, 1);
+			
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
 			action_box.getChildren().addAll(character_info,moves,equip,backpack);
 			action_box.setPrefWidth(100);
@@ -105,14 +97,15 @@ public class Main extends Application {
 			grid.setLayoutX(100);
 			setActiveCharacter();
 			grid.add(selected_character, 5, 5);
-			//bp.setCenter(grid);
-			//bp.setLeft(action_box);
+			
 			bp.getChildren().addAll(grid,action_box,info, damage_box);
-	        Scene scene = new Scene(bp,650,550);
+	        Scene scene = new Scene(bp,board_width+100,board_height);
 	        scene.setOnKeyPressed(e -> {
 	        	System.out.println(e.getCode());
 	        	if(selected_character != null) {
 	        		int x,y = 0;
+	        		y = selected_character.coordinates[1];
+	        		x = selected_character.coordinates[0];
 		        	switch(e.getCode()) {		        	
 		        	case UP :
 		        	case W :
@@ -133,6 +126,20 @@ public class Main extends Application {
 		        	case D :
 		        		y = selected_character.coordinates[1];
 		        		x = selected_character.coordinates[0] + 1;
+		        		break;
+		        	case MINUS :
+		        		box_size = 25;
+		        		setZoom(box_size);
+		        		for(Character c : characters) {
+		        			c.setZoom(box_size);
+		        		}
+		        		break;
+		        	case EQUALS :
+		        		box_size = 50;
+		        		setZoom(box_size);
+		        		for(Character c : characters) {
+		        			c.setZoom(box_size);
+		        		}
 		        		break;
 		        	case SPACE :
 		        		setActiveCharacter();
@@ -190,22 +197,27 @@ public class Main extends Application {
 		action_box.getChildren().add(equip);
 		equip.setPadding(new Insets(5));
 
-		/*
-		 * 
-		equip.getChildren().removeAll(equip.getChildren());
-		//if
-		equip.add((selected_character.load_out.right_hand != null) ?
-			selected_character.load_out.right_hand.drawItem() : r, 0, 1);
-		equip.add((selected_character.load_out.left_hand != null) ?
-			selected_character.load_out.left_hand.drawItem() : l, 2, 1);
-		equip.add((selected_character.load_out.head != null) ?
-			selected_character.load_out.head.drawItem() : h, 1, 0);
-		equip.add((selected_character.load_out.body != null) ?
-			selected_character.load_out.body.drawItem() : b, 1, 1);
-		equip.add((selected_character.load_out.feet != null) ?
-			selected_character.load_out.feet.drawItem() : f, 1, 2);
-		*/
+	
 		centerScreen();
+	}
+	
+	public void setZoom(int size) {
+		System.out.println(board_width/size);
+		System.out.println(board_height/size);
+		int columns = board_width/size;
+		int rows = board_height/size;
+		grid.getColumnConstraints().removeAll(grid.getColumnConstraints());
+		grid.getRowConstraints().removeAll(grid.getRowConstraints());
+		
+		for(int i = 0; i < 22; i++) {
+            ColumnConstraints column = new ColumnConstraints(size);
+            grid.getColumnConstraints().add(column);
+        }
+
+        for(int i = 0; i < 22; i++) {
+            RowConstraints row = new RowConstraints(size);
+            grid.getRowConstraints().add(row);
+        }
 	}
 	
 	public static boolean inRange(Character defender) {
@@ -250,8 +262,8 @@ public class Main extends Application {
 		
 	public void centerScreen() {
 		//bp.getChildren().get(0).setLayoutX(value);
-		grid.setLayoutX((5 - selected_character.coordinates[0]) * 50 + 100);
-		grid.setLayoutY((5 - selected_character.coordinates[1]) * 50);
+		grid.setLayoutX((5 - selected_character.coordinates[0]) * box_size + 100);
+		grid.setLayoutY((5 - selected_character.coordinates[1]) * box_size);
 
 	}
 	

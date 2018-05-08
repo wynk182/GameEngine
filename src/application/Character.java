@@ -32,8 +32,8 @@ public class Character extends Rectangle{
 		this.attack = a;
 		this.defense = d;
 		this.moves = m;		
-		this.setWidth(50);
-		this.setHeight(50);
+		this.setWidth(Main.box_size);
+		this.setHeight(Main.box_size);
 		this.setFill(Color.BLUE);
 		this.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
 		this.setOnMouseClicked(e -> {			
@@ -56,7 +56,11 @@ public class Character extends Rectangle{
 				}
 			}			
 		});
-		//System.out.println(this.name + " is a " + spec + " with " + this.health + " health.");
+	}
+	
+	public void setZoom(int size) {
+		this.setWidth(size);
+		this.setHeight(size);
 	}
 	
 	public int attack() {
@@ -126,6 +130,5 @@ public class Character extends Rectangle{
 		}
 		return true;
 	}
-	
 	
 }
