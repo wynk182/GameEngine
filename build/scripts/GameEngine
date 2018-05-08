@@ -65,7 +65,7 @@ cd "`dirname \"$PRG\"`/.." >&-
 APP_HOME="`pwd -P`"
 cd "$SAVED" >&-
 
-CLASSPATH=$APP_HOME/lib/GameEngine.jar
+CLASSPATH=$APP_HOME/lib/GameEngine.jar:$APP_HOME/lib/sqlite-jdbc-3.7.2.jar:$APP_HOME/lib/slf4j-api-1.7.7.jar
 
 # Determine the Java command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then

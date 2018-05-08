@@ -69,7 +69,7 @@ set CMD_LINE_ARGS=%$
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\GameEngine.jar
+set CLASSPATH=%APP_HOME%\lib\GameEngine.jar;%APP_HOME%\lib\sqlite-jdbc-3.7.2.jar;%APP_HOME%\lib\slf4j-api-1.7.7.jar
 
 @rem Execute GameEngine
 "%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GAME_ENGINE_OPTS%  -classpath "%CLASSPATH%" application.Main %CMD_LINE_ARGS%
