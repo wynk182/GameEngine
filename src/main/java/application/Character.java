@@ -1,7 +1,5 @@
 package application;
 
-import java.io.File;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -9,7 +7,6 @@ import org.json.JSONObject;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;

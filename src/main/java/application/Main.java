@@ -1,13 +1,25 @@
 package application;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -47,10 +59,11 @@ public class Main extends Application {
 	//Rectangle b = new Rectangle(1,1,20,20);
 	//Rectangle f = new Rectangle(1,1,20,20);
 	int players = 2;
+	boolean map_loaded = false;
 
 	static 	BackPack backpack = new BackPack();
 	//static Dragboard db;
-	static int[][] game_board = new int[100][100];
+	static int[][] game_board = new int[22][22];
 	static Label item_info = new Label("Item info:");
 	static CharacterList characters = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
@@ -58,36 +71,62 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			lan.start();
-			System.out.println(me.my_gold + "");
-			/*
-			if(me.new_account){
-				// Setup new account
-				VBox gp = new VBox();
+			VBox gp = new VBox();
+			if(me.new_account) {
 				Label lb = new Label("Enter Your Name Adventurer!");
 				TextField tf = new TextField();
 				gp.getChildren().addAll(lb,tf);
-				Scene setup_scene = new Scene(gp,200,200);
-				primaryStage.setScene(setup_scene);
 			}
-			*/
+			//
+			File[] maps = new File(".").listFiles(new FilenameFilter() {
+			    public boolean accept(File dir, String name) {
+			        return name.toLowerCase().endsWith(".map");
+			    }
+			});
+			if(maps.length > 0) {
+				map_loaded = loadMap(maps[0]);
+			}
+			
+			
+			Button start = new Button("Start Game");
+			start.setOnAction(e ->{
+				startGame(primaryStage,22,22,2);
+			});
+			gp.getChildren().add(start);
+			Scene setup_scene = new Scene(gp,200,200);
+			primaryStage.setScene(setup_scene);
+			primaryStage.show();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void startGame(Stage primaryStage,int width, int height, int players) {
+		try {
+			//lan.start();
+			//System.out.println(me.my_gold + "");
+			
 			characters.myTeam = true;
 			//attack_button.setFocusTraversable(false);
 			//defend_button.setFocusTraversable(false);
 
 			grid.setGridLinesVisible(true);	
-			
+			if(!map_loaded) {
+				game_board = new int[height][width];
+			}
 	        for(int r = 0; r < game_board.length; r++) {
 	        	for(int c = 0; c < game_board[r].length; c++) {
-	        		int obj = (int)(Math.random()*10);
-	        		game_board[r][c] = obj;
-	        		if(obj > 7) {
+	        		if(!map_loaded) {
+	        			int obj = (int)(Math.random()*10);
+	        			game_board[r][c] = obj;
+	        		}
+	        		if(game_board[r][c] > 7) {
 	        			Rectangle seed = new Rectangle(1,1, box_size, box_size);
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
 	        		}
-	        		else if(obj > 6){
-	        			Rectangle gold = new Rectangle(1,1, box_size/2, box_size/2);
+	        		else if(game_board[r][c] > 6){
+	        			Rectangle gold = new Rectangle(1,1, box_size, box_size);
 	        			gold.setFill(Color.GOLD);
 	        			grid.add(gold, c,r);
 	        		}
@@ -189,6 +228,30 @@ public class Main extends Application {
 		}
 	}	
 	
+	public boolean loadMap(File map) {
+		try {
+			BufferedReader map_reader = new BufferedReader(new FileReader(map));
+			String row = "";
+			int index = 0;
+			List<int[]> board = new ArrayList<int[]>();
+			while((row = map_reader.readLine()) != null) {
+				//System.out.println(row);
+				board.add(Arrays.stream(row.split(",")).mapToInt(Integer::parseInt).toArray());
+				index++;
+			}
+			game_board = new int[index][board.get(0).length];
+			for(int[] a_row : board) {
+				game_board[board.indexOf(a_row)] = a_row;
+			}
+			map_reader.close();
+			return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
 		selected_character = characters.getNext();
@@ -210,12 +273,19 @@ public class Main extends Application {
 	}
 	
 	public void setZoom(int size) {
-		System.out.println(board_width/size);
-		System.out.println(board_height/size);
-		//int columns = board_width/size;
-		//int rows = board_height/size;
+		
 		grid.getColumnConstraints().removeAll(grid.getColumnConstraints());
 		grid.getRowConstraints().removeAll(grid.getRowConstraints());
+		for(Node n : grid.getChildren()) {
+			try {
+				Rectangle obj = (Rectangle) n;
+				obj.setWidth(size);
+				obj.setHeight(size);
+			}
+			catch(Exception e) {
+				continue;
+			}
+		}
 		
 		for(int i = 0; i < game_board[0].length; i++) {
             ColumnConstraints column = new ColumnConstraints(size);

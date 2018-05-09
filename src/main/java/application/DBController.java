@@ -325,7 +325,7 @@ public class DBController {
 			pstmt.setInt(3, 100);
 			pstmt.setInt(4, 0);
 			pstmt.setInt(5, 0);
-			pstmt.setBoolean(6, false);
+			pstmt.setBoolean(6, true);
 			pstmt.execute();
 			pstmt.close();
 			
