@@ -2,10 +2,12 @@ package application;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +21,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -33,7 +37,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
-	static LANServer lan = new LANServer();
+	static LANServer lan;// = new LANServer();
+	static String opponent_address;
 	static Account me = new Account();
 	static int board_width = 550;
 	static int board_height = 550;
@@ -42,7 +47,7 @@ public class Main extends Application {
 	static final Image CURSOR = new Image(new File("cursor.png").toURI().toString());
 	static final Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	static final Image damage = new Image(new File("damage.png").toURI().toString());
-	GridPane grid = new GridPane();
+	static GridPane grid = new GridPane();
 	static InfoBox info = new InfoBox("whitesmoke;");
 	static InfoBox damage_box = new InfoBox("transparent");
 	VBox action_box = new VBox();
@@ -71,7 +76,52 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			TabPane tp = new TabPane();
+			Tab single_player = new Tab("Single Player");
+			Tab multi_player = new Tab("Multi Player");
+			tp.getTabs().addAll(single_player,multi_player);
+			single_player.setClosable(false);
+			multi_player.setClosable(false);
+			GridPane multi_form = new GridPane();
+			Button host = new Button("Host?");
+			Button connect = new Button("Connect?");
+			Label lan_info = new Label();
+			host.setOnAction(e -> {
+				try {
+				    InetAddress addr = Inet4Address.getLocalHost();				    
+				    lan_info.setText("You're hosting a game. Provide the below address to your opponent.\n" + addr.getHostAddress());
+				    lan = new LANServer();
+				} catch (UnknownHostException et) {
+				}
+				Button b = new Button("Start Game");
+				b.setOnAction(eb -> {
+					startGame(primaryStage,22,22,2);
+				});
+				multi_form.add(b, 0, 3);
+				//lan.start();
+			});
+			connect.setOnAction(e -> {
+				Label con_info = new Label("Enter your opponents IP");
+				TextField t = new TextField();
+				Button b = new Button("Connect");
+				multi_form.add(con_info, 0, 2);
+				multi_form.add(t, 0, 3);
+				multi_form.add(b, 0, 4);
+				b.setOnAction(btn -> {
+					if(!t.getText().isEmpty()){
+						//lan = new LANServer();
+						opponent_address = t.getText();
+					}
+				});
+			});
+			multi_form.add(host, 0, 0);
+			multi_form.add(connect, 0, 1);
+			multi_form.add(lan_info, 0, 2);
+			multi_player.setContent(multi_form);
 			VBox gp = new VBox();
+			gp.setPadding(new Insets(20));
+			single_player.setContent(gp);
+			
 			if(me.new_account) {
 				Label lb = new Label("Enter Your Name Adventurer!");
 				TextField tf = new TextField();
@@ -93,7 +143,7 @@ public class Main extends Application {
 				startGame(primaryStage,22,22,2);
 			});
 			gp.getChildren().add(start);
-			Scene setup_scene = new Scene(gp,200,200);
+			Scene setup_scene = new Scene(tp,650,550);
 			primaryStage.setScene(setup_scene);
 			primaryStage.show();
 		}catch(Exception e) {
@@ -103,7 +153,7 @@ public class Main extends Application {
 	
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
-			//lan.start();
+			
 			//System.out.println(me.my_gold + "");
 			
 			characters.myTeam = true;
