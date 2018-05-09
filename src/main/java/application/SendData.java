@@ -24,12 +24,13 @@ public class SendData extends Service<Void> {
 			protected Void call() throws Exception {
 				Socket s = new Socket(Main.opponent_address, game_port);
 				PrintWriter out = new PrintWriter(s.getOutputStream());
-        		out.println("HTTP/1.1 200 OK");
-        		out.println("Content-Type: application/json");
+        		//out.println("POST / HTTP/1.1");
+        		//out.println("Host: "+ Main.opponent_address + ":" + game_port);
+        		//out.println("Content-Type: application/json");        		
         		//out.println("\r\n");
-        		out.println("Content-Lenght: " + json_data.toString().length());
+        		//out.println("Content-Lenght: " + json_data.toString().length());
         		//out.println("\r\n");
-        		out.println(json_data.toString());
+        		out.print(json_data.toString());
         		out.close();        		
         		s.close();
 				return null;                	

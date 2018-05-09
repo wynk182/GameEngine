@@ -115,6 +115,8 @@ public class Main extends Application {
 					if(!t.getText().isEmpty()){
 						//lan = new LANServer();
 						opponent_address = t.getText();
+						lan = new LANServer();
+						lan.start();
 						try {
 							SendData send = new SendData(new JSONObject("{\"request\":\"connection\",\"address\":\""+ Inet4Address.getLocalHost().getHostAddress() +"\"}"));
 							send.start();
