@@ -39,7 +39,7 @@ public class Character extends Rectangle{
 		this.setWidth(Main.box_size);
 		this.setHeight(Main.box_size);
 		this.setFill(Color.BLUE);
-		this.setCursor(new ImageCursor(Main.cursor));
+		this.setCursor(new ImageCursor(Main.CURSOR));
 		//this.setStyle("-fx-cursor: url('cursor.png');");
 		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;			
@@ -157,7 +157,10 @@ public class Character extends Rectangle{
 						.put("name", node.name)
 						.put("attack_bonus", node.attack_bonus)
 						.put("defense_bonus", node.defense_bonus)
-						.put("move_bonus", node.move_bonus);
+						.put("move_bonus", node.move_bonus)
+						.put("health_bonus", node.health_bonus)
+						.put("worth", node.worth)
+						.put("range", node.range);
 					json_loadout.put(json_item);
 				}
 				character.put("load_out", json_loadout);
@@ -165,7 +168,7 @@ public class Character extends Rectangle{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(character);
+		//System.out.println(character);
 		return character;
 	}
 	

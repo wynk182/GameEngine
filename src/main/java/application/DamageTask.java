@@ -37,6 +37,6 @@ public class DamageTask extends Service<Void> {
                 return null;
             }
         };
-}
+	}
 
 }

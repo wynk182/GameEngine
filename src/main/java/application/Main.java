@@ -8,7 +8,6 @@ import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -22,14 +21,15 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
+	static LANServer lan = new LANServer();
 	static Account me = new Account();
 	static int board_width = 550;
 	static int board_height = 550;
 	static int box_size = 25;
 	//int box_height = 50;
-	static Image cursor = new Image(new File("cursor.png").toURI().toString());
-	static Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
-	static Image damage = new Image(new File("damage.png").toURI().toString());
+	static final Image CURSOR = new Image(new File("cursor.png").toURI().toString());
+	static final Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
+	static final Image damage = new Image(new File("damage.png").toURI().toString());
 	GridPane grid = new GridPane();
 	static InfoBox info = new InfoBox("whitesmoke;");
 	static InfoBox damage_box = new InfoBox("transparent");
@@ -58,6 +58,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			lan.start();
 			System.out.println(me.my_gold + "");
 			/*
 			if(me.new_account){
@@ -177,6 +178,7 @@ public class Main extends Application {
 	        	}
 	        	
 	        });
+	        
 	        bp.setStyle("-fx-background-color:darkgrey;");
 	        grid.setStyle("-fx-background-color:lightgreen;");
 			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -192,6 +194,7 @@ public class Main extends Application {
 		selected_character = characters.getNext();
 		selected_character.has_moved = 0;
 		selected_character.has_attacked = false;
+		System.out.println(selected_character.toJson());
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
 				+ "\nHP: " + (selected_character.health() - selected_character.damage_taken)
