@@ -27,8 +27,8 @@ public class SendData extends Service<Void> {
         		out.println("HTTP/1.1 200 OK");
         		out.println("Content-Type: application/json");
         		//out.println("\r\n");
-        		//out.println("Content-Lenght: 20");
-        		out.println("\r\n");
+        		out.println("Content-Lenght: " + json_data.toString().length());
+        		//out.println("\r\n");
         		out.println(json_data.toString());
         		out.close();        		
         		s.close();

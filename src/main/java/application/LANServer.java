@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javafx.application.Platform;
@@ -60,12 +61,31 @@ public class LANServer extends Service<Void>{
             		out.close();
             		game.close();
             		s.close();
+            		
             		Platform.runLater(new Runnable(){
 						@Override
 						public void run() {
-							Character c = Character.fromJson(json_request);
-							Main.characters.add(c);
-							Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+							try {
+								switch(json_request.getString("request")){
+								case "character":
+									Character c = Character.fromJson(json_request);
+									Main.opponents.add(c);
+									Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+									break;
+								case "connection":									
+									Main.opponent_address = json_request.getString("address");
+									Main.lan_info.setText("Recieved Connection from: " + Main.opponent_address);
+									break;								
+								default:
+									
+									break;
+								}
+									
+								
+							} catch (JSONException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}							
 							
 						}            			
             		});

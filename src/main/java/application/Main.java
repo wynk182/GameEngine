@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
@@ -21,6 +24,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -56,21 +61,17 @@ public class Main extends Application {
 	Label character_info = new Label();
 	Label moves = new Label();
 	int zoom = 2;
-	//Button attack_button = new Button("Attack");
-	//Button defend_button = new Button("Defend");
-	//Rectangle r = new Rectangle(1,1,20,20);
-	//Rectangle l = new Rectangle(1,1,20,20);
-	//Rectangle h = new Rectangle(1,1,20,20);
-	//Rectangle b = new Rectangle(1,1,20,20);
-	//Rectangle f = new Rectangle(1,1,20,20);
-	int players = 2;
+	
+	int players = 1;
 	boolean map_loaded = false;
 
 	static 	BackPack backpack = new BackPack();
 	//static Dragboard db;
 	static int[][] game_board = new int[22][22];
 	static Label item_info = new Label("Item info:");
+	static Label lan_info = new Label();
 	static CharacterList characters = new CharacterList();
+	static CharacterList opponents = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
 	
 	@Override
@@ -85,12 +86,15 @@ public class Main extends Application {
 			GridPane multi_form = new GridPane();
 			Button host = new Button("Host?");
 			Button connect = new Button("Connect?");
-			Label lan_info = new Label();
+			
 			host.setOnAction(e -> {
 				try {
 				    InetAddress addr = Inet4Address.getLocalHost();				    
 				    lan_info.setText("You're hosting a game. Provide the below address to your opponent.\n" + addr.getHostAddress());
 				    lan = new LANServer();
+				    lan.start();
+				   
+				    
 				} catch (UnknownHostException et) {
 				}
 				Button b = new Button("Start Game");
@@ -111,6 +115,13 @@ public class Main extends Application {
 					if(!t.getText().isEmpty()){
 						//lan = new LANServer();
 						opponent_address = t.getText();
+						try {
+							SendData send = new SendData(new JSONObject("{\"request\":\"connection\",\"address\":\""+ Inet4Address.getLocalHost().getHostAddress() +"\"}"));
+							send.start();
+						} catch (JSONException | UnknownHostException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
 				});
 			});
@@ -137,12 +148,20 @@ public class Main extends Application {
 				map_loaded = loadMap(maps[0]);
 			}
 			
+			Spinner<Integer> spin = new Spinner<Integer>();
+			final int initialValue = 3;
 			
+			Label enemies = new Label("Opponents");
+			
+		    SpinnerValueFactory<Integer> valueFactory =
+		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, initialValue);
+		 
+		    spin.setValueFactory(valueFactory);
 			Button start = new Button("Start Game");
 			start.setOnAction(e ->{
-				startGame(primaryStage,22,22,2);
+				startGame(primaryStage,22,22,spin.getValue());
 			});
-			gp.getChildren().add(start);
+			gp.getChildren().addAll(enemies,spin,start);
 			Scene setup_scene = new Scene(tp,650,550);
 			primaryStage.setScene(setup_scene);
 			primaryStage.show();
@@ -304,10 +323,12 @@ public class Main extends Application {
 	
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
+		SendData send = new SendData(selected_character.toJson());
+		send.start();
 		selected_character = characters.getNext();
 		selected_character.has_moved = 0;
 		selected_character.has_attacked = false;
-		System.out.println(selected_character.toJson());
+		//System.out.println(selected_character.toJson());
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
 				+ "\nHP: " + (selected_character.health() - selected_character.damage_taken)
@@ -407,6 +428,10 @@ public class Main extends Application {
 		}
 		else {
 			for(Character c : characters) {
+				if(c.coordinates[0] == x && c.coordinates[1] == y)
+					return true;
+			}
+			for(Character c : opponents) {
 				if(c.coordinates[0] == x && c.coordinates[1] == y)
 					return true;
 			}

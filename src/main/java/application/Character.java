@@ -138,6 +138,7 @@ public class Character extends Rectangle{
 		JSONObject character = new JSONObject();
 		try {
 			character
+				.put("request", "character")
 				.put("name", this.name)
 				.put("damage_taken", this.damage_taken)
 				.put("health", health())
