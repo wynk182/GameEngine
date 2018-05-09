@@ -27,6 +27,7 @@ public class Main extends Application {
 	static int board_height = 550;
 	static int box_size = 25;
 	//int box_height = 50;
+	static Image cursor = new Image(new File("cursor.png").toURI().toString());
 	static Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	static Image damage = new Image(new File("damage.png").toURI().toString());
 	GridPane grid = new GridPane();

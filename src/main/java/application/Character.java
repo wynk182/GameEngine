@@ -2,6 +2,10 @@ package application;
 
 import java.io.File;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -35,7 +39,8 @@ public class Character extends Rectangle{
 		this.setWidth(Main.box_size);
 		this.setHeight(Main.box_size);
 		this.setFill(Color.BLUE);
-		this.setCursor(new ImageCursor(new Image(new File("cursor.png").toURI().toString())));
+		this.setCursor(new ImageCursor(Main.cursor));
+		//this.setStyle("-fx-cursor: url('cursor.png');");
 		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;			
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this) && !attacker.equals(this)) {
@@ -130,6 +135,38 @@ public class Character extends Rectangle{
 		}
 		has_moved++;
 		return true;
+	}
+	
+	public JSONObject toJson() {
+		JSONObject character = new JSONObject();
+		try {
+			character
+				.put("name", this.name)
+				.put("damage_taken", this.damage_taken)
+				.put("health", health())
+				.put("attack", attack())
+				.put("defense", defense())
+				.put("coordinates", new JSONArray()
+						.put(this.coordinates[0])
+						.put(this.coordinates[1]));
+				JSONArray json_loadout = new JSONArray();
+				for(Node n : this.load_out.getChildren()) {
+					Item node = (Item) n;
+					JSONObject json_item = new JSONObject();
+					json_item
+						.put("name", node.name)
+						.put("attack_bonus", node.attack_bonus)
+						.put("defense_bonus", node.defense_bonus)
+						.put("move_bonus", node.move_bonus);
+					json_loadout.put(json_item);
+				}
+				character.put("load_out", json_loadout);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println(character);
+		return character;
 	}
 	
 }

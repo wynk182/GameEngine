@@ -4,7 +4,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
-public class DamageTask extends Service {
+public class DamageTask extends Service<Void> {
 	InfoBox d;
 	int time;
 
@@ -14,7 +14,7 @@ public class DamageTask extends Service {
 	}
 
 	@Override
-	protected Task createTask() {
+	protected Task<Void> createTask() {
 		return new Task<Void>() {           
             @Override
             protected Void call() throws Exception {
