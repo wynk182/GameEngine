@@ -75,7 +75,13 @@ public class LANServer extends Service<Void>{
 								case "connection":									
 									Main.opponent_address = json_request.getString("address");
 									Main.lan_info.setText("Recieved Connection from: " + Main.opponent_address);
-									break;								
+									break;	
+								case "end_turn":
+									//set next character and 
+									break;
+								case "game_board":
+									//load the board we will be using
+									break;
 								default:
 									
 									break;

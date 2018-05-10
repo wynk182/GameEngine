@@ -19,7 +19,9 @@ import org.json.JSONObject;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.stage.Stage;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -213,9 +215,30 @@ public class Main extends Application {
 			}
 			
 			backpack.setPadding(new Insets(5));
-			
+			/*
+			Pane end_btn = new Pane();
+			Label text = new Label("End Turn");
+			Rectangle end_turn = new Rectangle(1,1,80,20);
+			end_turn.setFill(Color.ALICEBLUE);
+			end_btn.getChildren().addAll(end_turn,text);
+			end_btn.setCursor(Cursor.HAND);
+			end_btn.setOnMouseClicked(e -> {
+				JSONObject json_data = new JSONObject();
+				try {
+					json_data
+						.put("request", "end_turn");
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				System.out.println(json_data);
+				SendData send = new SendData(json_data);
+				send.start();
+			});
+			*/
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
 			action_box.getChildren().addAll(character_info,moves,equip,backpack);
+			//end_turn.setAlignment(Pos.BOTTOM_CENTER);
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
@@ -325,11 +348,11 @@ public class Main extends Application {
 	
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
-		SendData send = new SendData(selected_character.toJson());
-		send.start();
+		//SendData send = new SendData(selected_character.toJson());
+		//send.start();
 		selected_character = characters.getNext();
-		selected_character.has_moved = 0;
-		selected_character.has_attacked = false;
+		//selected_character.has_moved = 0;
+		//selected_character.has_attacked = false;
 		//System.out.println(selected_character.toJson());
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
@@ -340,8 +363,6 @@ public class Main extends Application {
 		equip = selected_character.load_out;
 		action_box.getChildren().add(equip);
 		equip.setPadding(new Insets(5));
-
-	
 		centerScreen();
 	}
 	
