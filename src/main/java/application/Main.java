@@ -30,7 +30,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -38,7 +37,6 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -556,20 +554,10 @@ public class Main extends Application {
 		return (least_distance == 1.0);		
 	}
 	
-	public static void attack(Character attacker, Character defender){
-		
-		//Character attacker = Main.selected_character;			
-		//if(attacker != null && !attacker.has_attacked && Main.inRange(this) && !attacker.equals(this)) {
+	public static void attack(Character attacker, Character defender){				
 		attacker.has_attacked = true;
 		int roll = (int) (Math.random() * 20);
-		int damage = roll + attacker.attack();
-		//Label l = new Label("" + (damage-defender.defense()));
-		//StackPane att = new StackPane();
-		//att.getChildren().addAll(new ImageView(Main.damage), l);
-		//Main.damage_box.showInfo(att,e.getSceneX()-50,e.getSceneY()-10);
-		//DamageTask dt = new DamageTask(Main.damage_box, 1);
-		//dt.start();
-			//Platform.runLater(new DamageTask(Main.damage_box, 5));
+		int damage = roll + attacker.attack();		
 		defender.damage_taken += (damage < defender.defense()) ? 0 : damage-defender.defense();
 		System.out.println(attacker.name + " has attacked " + defender.name + " and dealt " +
 				((damage < defender.defense()) ? 0 : damage-defender.defense()) + " damage!");
@@ -577,8 +565,7 @@ public class Main extends Application {
 			defender.setVisible(false);
 			Main.characters.remove(defender);
 			Main.opponents.remove(defender);
-		}
-		//}
+		}		
 	}
 	
 	public static Character selected_character = null;
