@@ -14,7 +14,7 @@ import javafx.scene.shape.Rectangle;
 
 public class Character extends Rectangle{
 	
-	public LoadOut load_out;
+	public LoadOut load_out = new LoadOut();
 	public String name = "Buster";
 	public String gender = "Male";
 	public int damage_taken;
@@ -25,10 +25,12 @@ public class Character extends Rectangle{
 	private int range =0;
 	public int has_moved = 0;
 	boolean has_attacked = false;
+	String game_id;
 	
 	public int[] coordinates;
 	
 	public Character(int h, int a, int d, int m) {	
+		this.game_id = GameUtil.getSaltString(5);
 		this.health = h;
 		this.attack = a;
 		this.defense = d;
@@ -54,7 +56,8 @@ public class Character extends Rectangle{
 				this.damage_taken += (damage < defense()) ? 0 : damage-defense();
 				if(this.damage_taken >= health()) {
 					this.setVisible(false);
-					Main.characters.remove(this);	
+					Main.characters.remove(this);
+					Main.opponents.remove(this);
 				}
 			}			
 		});
@@ -138,7 +141,8 @@ public class Character extends Rectangle{
 		JSONObject character = new JSONObject();
 		try {
 			character
-				.put("request", "character")
+				//.put("request", "character")
+				.put("game_id", this.game_id)
 				.put("name", this.name)
 				.put("damage_taken", this.damage_taken)
 				.put("health", health())

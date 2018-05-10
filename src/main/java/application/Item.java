@@ -44,7 +44,7 @@ public class Item extends Rectangle{
 		});
 		this.setWidth(20);
 		this.setHeight(20);
-		this.setFill(Color.RED);
+		this.setFill(Color.GREEN);
 		this.setStyle("-fx-cursor: hand;");	
 		
 		this.setOnMouseEntered(e -> {

@@ -30,6 +30,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
@@ -37,6 +38,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -75,22 +77,35 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			map_preview.setGridLinesVisible(true);	
+			
 			//map_preview.setStyle("-fx-background-color:lightgreen;");
 			TabPane tp = new TabPane();
 			Tab single_player = new Tab("Single Player");
 			Tab multi_player = new Tab("Multi Player");
-			tp.getTabs().addAll(single_player,multi_player);
-			single_player.setClosable(false);
-			multi_player.setClosable(false);
 			GridPane multi_form = new GridPane();
 			Button host = new Button("Host?");
 			Button connect = new Button("Connect?");
+			VBox gp = new VBox();
+			Spinner<Integer> spin = new Spinner<Integer>();
+			Button start = new Button("Start Game");
+			final int initialValue = 3;
+			
+			Label enemies = new Label("Opponents");
+			
+		    SpinnerValueFactory<Integer> valueFactory =
+		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, initialValue);
+		    
+			tp.getTabs().addAll(single_player,multi_player);
+			single_player.setClosable(false);
+			multi_player.setClosable(false);
+			
 			
 			host.setOnAction(e -> {
 				try {
+					GameUtil.createGameId();
 				    InetAddress addr = Inet4Address.getLocalHost();				    
-				    lan_info.setText("You're hosting a game. Provide the below address to your opponent.\n" + addr.getHostAddress());
+				    lan_info.setText("You're hosting a game ("+GameUtil.GAME_ID+")."
+				    		+ " Provide the below address to your opponent.\n" + addr.getHostAddress());
 				    lan = new LANServer();
 				    lan.start();
 				} catch (UnknownHostException et) {
@@ -132,7 +147,7 @@ public class Main extends Application {
 			map_preview.setPadding(new Insets(100));
 			multi_form.add(map_preview, 0, 5);
 			multi_player.setContent(multi_form);
-			VBox gp = new VBox();
+			
 			gp.setPadding(new Insets(20));
 			single_player.setContent(gp);
 			
@@ -151,16 +166,10 @@ public class Main extends Application {
 				map_loaded = loadMap(maps[0]);
 			}
 			
-			Spinner<Integer> spin = new Spinner<Integer>();
-			final int initialValue = 3;
 			
-			Label enemies = new Label("Opponents");
-			
-		    SpinnerValueFactory<Integer> valueFactory =
-		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, initialValue);
 		 
 		    spin.setValueFactory(valueFactory);
-			Button start = new Button("Start Game");
+			
 			start.setOnAction(e ->{
 				startGame(primaryStage,22,22,spin.getValue());
 			});
@@ -175,7 +184,19 @@ public class Main extends Application {
 	
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
-			
+			for(int p = 0; p < players; p++){
+				Character enemy = new Character(100, 10, 10, 2);
+				enemy.name = "Enemy" + p;
+				opponents.add(enemy);
+				enemy.coordinates = new int[]{0,0};
+				grid.add(enemy, 0, 0);
+				enemy.setTriggers();
+				enemy.setFill(Color.RED);
+				Item enemy_sword = new Item();
+				enemy_sword.attack_bonus = 10;
+				enemy_sword.range = 1;
+				enemy.load_out.equipItem(enemy_sword, "right");
+			}
 			characters.myTeam = true;
 			
 			grid.setGridLinesVisible(true);	
@@ -231,8 +252,12 @@ public class Main extends Application {
 				send.start();
 			});
 			*/
+			Label end_turn = new Label("End Turn");
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
-			action_box.getChildren().addAll(character_info,moves,equip,backpack);
+			action_box.getChildren().addAll(character_info,moves,equip,backpack,end_turn);
+			end_turn.setOnMouseClicked(e -> {
+				playNpcTurn();
+			});
 			//end_turn.setAlignment(Pos.BOTTOM_CENTER);
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
@@ -317,8 +342,27 @@ public class Main extends Application {
 		}
 	}
 	
+	public void playNpcTurn(){
+		for(Character c : opponents){
+			selected_character = c;
+			while(c.move1Space()){
+				if(npcMove(c)){
+					break;
+				}
+			}
+			c.has_moved = 0;
+		}
+		for(Character c : characters){
+			c.has_attacked = false;
+			c.has_moved = 0;
+		}
+		setActiveCharacter();
+	}
+	
 	public static void renderPreviewMap(int[][] map) {
 		map_preview.getChildren().removeAll(map_preview.getChildren());
+		//map_preview = new GridPane();
+		
 		for(int i = 0; i < map[0].length; i++) {
             ColumnConstraints column = new ColumnConstraints(20);
             map_preview.getColumnConstraints().add(column);
@@ -342,8 +386,14 @@ public class Main extends Application {
         			gold.setFill(Color.GOLD);
         			map_preview.add(gold, c,r);
         		}
+        		else{
+        			Rectangle empty = new Rectangle(1,1, 20, 20);
+        			empty.setFill(Color.LIGHTGREEN);
+        			map_preview.add(empty, c,r);
+        		}
         	}
         }
+        //map_preview.setGridLinesVisible(true);	
         
 	}
 	
@@ -451,25 +501,84 @@ public class Main extends Application {
 	}
 	
 	public boolean spaceOccupied(int x, int y) {
-		if(game_board[y][x] > 7) 
+		try{
+			if(game_board[y][x] > 7) 
+				return true;
+			else if(game_board[y][x] > 6) {
+				System.out.println("GOLD");
+				game_board[y][x] = 0;
+				
+				return false;
+			}
+			else {
+				for(Character c : characters) {
+					if(c.coordinates[0] == x && c.coordinates[1] == y)
+						return true;
+				}
+				for(Character c : opponents) {
+					if(c.coordinates[0] == x && c.coordinates[1] == y)
+						return true;
+				}
+			}		
+		}catch(Exception e){
 			return true;
-		else if(game_board[y][x] > 6) {
-			System.out.println("GOLD");
-			game_board[y][x] = 0;
-			
-			return false;
 		}
-		else {
-			for(Character c : characters) {
-				if(c.coordinates[0] == x && c.coordinates[1] == y)
-					return true;
-			}
-			for(Character c : opponents) {
-				if(c.coordinates[0] == x && c.coordinates[1] == y)
-					return true;
-			}
-		}		
 		return false;
+	}
+	
+	public boolean npcMove(Character npc){
+		int[] left = new int[]{npc.coordinates[0]-1,npc.coordinates[1]};
+		int[] right = new int[]{npc.coordinates[0]+1,npc.coordinates[1]};
+		int[] up = new int[]{npc.coordinates[0],npc.coordinates[1]-1};
+		int[] down = new int[]{npc.coordinates[0],npc.coordinates[1]+1};
+		int[][] moves = new int[][]{left,right,up,down};
+		
+		double least_distance = 20;
+		int move = 0;
+		Character target = null;
+		for(Character c : characters){
+			for(int i = 0; i < 4; i++){
+				double distance = distance(moves[i],c.coordinates);
+				if(distance < least_distance && !spaceOccupied(moves[i][0],moves[i][1])){
+					least_distance = distance;
+					move = i;
+					target = c;
+				}
+			}
+		}
+		grid.getChildren().remove(npc);
+    	grid.add(npc, moves[move][0], moves[move][1]);
+		npc.coordinates = new int[]{moves[move][0],moves[move][1]};
+		if(least_distance == 1.0 && target != null){
+			attack(npc,target);			
+		}
+		System.out.println(least_distance);
+		return (least_distance == 1.0);		
+	}
+	
+	public static void attack(Character attacker, Character defender){
+		
+		//Character attacker = Main.selected_character;			
+		//if(attacker != null && !attacker.has_attacked && Main.inRange(this) && !attacker.equals(this)) {
+		attacker.has_attacked = true;
+		int roll = (int) (Math.random() * 20);
+		int damage = roll + attacker.attack();
+		//Label l = new Label("" + (damage-defender.defense()));
+		//StackPane att = new StackPane();
+		//att.getChildren().addAll(new ImageView(Main.damage), l);
+		//Main.damage_box.showInfo(att,e.getSceneX()-50,e.getSceneY()-10);
+		//DamageTask dt = new DamageTask(Main.damage_box, 1);
+		//dt.start();
+			//Platform.runLater(new DamageTask(Main.damage_box, 5));
+		defender.damage_taken += (damage < defender.defense()) ? 0 : damage-defender.defense();
+		System.out.println(attacker.name + " has attacked " + defender.name + " and dealt " +
+				((damage < defender.defense()) ? 0 : damage-defender.defense()) + " damage!");
+		if(defender.damage_taken >= defender.health()) {
+			defender.setVisible(false);
+			Main.characters.remove(defender);
+			Main.opponents.remove(defender);
+		}
+		//}
 	}
 	
 	public static Character selected_character = null;
