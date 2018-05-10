@@ -19,9 +19,7 @@ import org.json.JSONObject;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.stage.Stage;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -44,13 +42,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Main extends Application {
-	static LANServer lan;// = new LANServer();
+	static LANServer lan;
 	static String opponent_address;
 	static Account me = new Account();
 	static int board_width = 550;
 	static int board_height = 550;
 	static int box_size = 25;
-	//int box_height = 50;
 	static final Image CURSOR = new Image(new File("cursor.png").toURI().toString());
 	static final Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	static final Image damage = new Image(new File("damage.png").toURI().toString());
@@ -66,9 +63,8 @@ public class Main extends Application {
 	
 	int players = 1;
 	boolean map_loaded = false;
-
+	static GridPane map_preview = new GridPane();
 	static 	BackPack backpack = new BackPack();
-	//static Dragboard db;
 	static int[][] game_board = new int[22][22];
 	static Label item_info = new Label("Item info:");
 	static Label lan_info = new Label();
@@ -79,6 +75,8 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			map_preview.setGridLinesVisible(true);	
+			//map_preview.setStyle("-fx-background-color:lightgreen;");
 			TabPane tp = new TabPane();
 			Tab single_player = new Tab("Single Player");
 			Tab multi_player = new Tab("Multi Player");
@@ -95,16 +93,14 @@ public class Main extends Application {
 				    lan_info.setText("You're hosting a game. Provide the below address to your opponent.\n" + addr.getHostAddress());
 				    lan = new LANServer();
 				    lan.start();
-				   
-				    
 				} catch (UnknownHostException et) {
+					et.printStackTrace();
 				}
 				Button b = new Button("Start Game");
 				b.setOnAction(eb -> {
 					startGame(primaryStage,22,22,2);
 				});
 				multi_form.add(b, 0, 3);
-				//lan.start();
 			});
 			connect.setOnAction(e -> {
 				Label con_info = new Label("Enter your opponents IP");
@@ -113,17 +109,18 @@ public class Main extends Application {
 				multi_form.add(con_info, 0, 2);
 				multi_form.add(t, 0, 3);
 				multi_form.add(b, 0, 4);
+				
 				b.setOnAction(btn -> {
 					if(!t.getText().isEmpty()){
-						//lan = new LANServer();
 						opponent_address = t.getText();
 						lan = new LANServer();
 						lan.start();
 						try {
-							SendData send = new SendData(new JSONObject("{\"request\":\"connection\",\"address\":\""+ Inet4Address.getLocalHost().getHostAddress() +"\"}"));
+							SendData send = new SendData(new JSONObject(
+									"{\"request\":\"connection\",\"address\":\""+ Inet4Address.getLocalHost().getHostAddress() +"\"}"
+									));
 							send.start();
 						} catch (JSONException | UnknownHostException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
 					}
@@ -132,6 +129,8 @@ public class Main extends Application {
 			multi_form.add(host, 0, 0);
 			multi_form.add(connect, 0, 1);
 			multi_form.add(lan_info, 0, 2);
+			map_preview.setPadding(new Insets(100));
+			multi_form.add(map_preview, 0, 5);
 			multi_player.setContent(multi_form);
 			VBox gp = new VBox();
 			gp.setPadding(new Insets(20));
@@ -177,12 +176,8 @@ public class Main extends Application {
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
 			
-			//System.out.println(me.my_gold + "");
-			
 			characters.myTeam = true;
-			//attack_button.setFocusTraversable(false);
-			//defend_button.setFocusTraversable(false);
-
+			
 			grid.setGridLinesVisible(true);	
 			if(!map_loaded) {
 				game_board = new int[height][width];
@@ -320,7 +315,37 @@ public class Main extends Application {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-	}	
+	}
+	
+	public static void renderPreviewMap(int[][] map) {
+		map_preview.getChildren().removeAll(map_preview.getChildren());
+		for(int i = 0; i < map[0].length; i++) {
+            ColumnConstraints column = new ColumnConstraints(20);
+            map_preview.getColumnConstraints().add(column);
+        }
+
+        for(int i = 0; i < map.length; i++) {
+            RowConstraints row = new RowConstraints(20);
+            map_preview.getRowConstraints().add(row);
+        }
+		
+        for(int r = 0; r < map.length; r++) {
+        	for(int c = 0; c < map[r].length; c++) {
+        		
+        		if(map[r][c] > 7) {
+        			Rectangle seed = new Rectangle(1,1, 20, 20);
+        			seed.setFill(Color.BROWN);
+        			map_preview.add(seed, c,r);
+        		}
+        		else if(map[r][c] > 6){
+        			Rectangle gold = new Rectangle(1,1, 20, 20);
+        			gold.setFill(Color.GOLD);
+        			map_preview.add(gold, c,r);
+        		}
+        	}
+        }
+        
+	}
 	
 	public boolean loadMap(File map) {
 		try {
@@ -348,12 +373,9 @@ public class Main extends Application {
 	
 	public void setActiveCharacter() {
 		action_box.getChildren().remove(equip);
-		//SendData send = new SendData(selected_character.toJson());
-		//send.start();
+		
 		selected_character = characters.getNext();
-		//selected_character.has_moved = 0;
-		//selected_character.has_attacked = false;
-		//System.out.println(selected_character.toJson());
+		
 		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		character_info.setText(selected_character.name 
 				+ "\nHP: " + (selected_character.health() - selected_character.damage_taken)
@@ -396,7 +418,6 @@ public class Main extends Application {
 	public static boolean inRange(Character defender) {
 		
 		double distance = distance(selected_character.coordinates, defender.coordinates);	
-		//System.out.println(selected_character.range());
 		if(selected_character.range() < distance)
 			return false;
 		int r,c;
@@ -416,31 +437,20 @@ public class Main extends Application {
 		}		
 		return true;
 	}
-	/*
-	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
-
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
-	}
-	*/
+	
 	public static double distance(int[] a, int[] b) {
 		double distance = Math.sqrt(
 				Math.pow((a[1] - b[1]), 2) 
 				+ Math.pow((a[0] - b[0]), 2));
-		//System.out.println(distance);
 		return distance;//round(distance,0);
 	}
 		
 	public void centerScreen() {
-		//bp.getChildren().get(0).setLayoutX(value);
 		grid.setLayoutX(((5*zoom) - selected_character.coordinates[0]) * box_size + 100);
 		grid.setLayoutY(((5*zoom) - selected_character.coordinates[1]) * box_size);
 	}
 	
 	public boolean spaceOccupied(int x, int y) {
-		//System.out.println(game_board.get(y).get(x));
 		if(game_board[y][x] > 7) 
 			return true;
 		else if(game_board[y][x] > 6) {

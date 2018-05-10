@@ -32,12 +32,13 @@ public class LANServer extends Service<Void>{
             		int content_length = 0;
             		while((line=in.readLine())!=null){
             			System.out.println(line);
-            			if(line.contains("Content-Length")){
+            			if(line.toLowerCase().contains("content-length")){
             				content_length = Integer.parseInt(line.split(": ")[1]);
             				break;
             			}
             			
-            		}            	
+            		}  
+            		System.out.println(content_length);
             		String request = "";
             		String response = "";
             		for(int i = 0; i <= content_length+1; i++){
@@ -55,7 +56,7 @@ public class LANServer extends Service<Void>{
             		out.println("HTTP/1.1 200 OK");
             		out.println("Content-Type: application/json");
             		//out.println("\r\n");
-            		//out.println("Content-Lenght: 20");
+            		out.println("Content-Length: 20");
             		out.println("\r\n");
             		out.println(response);
             		out.close();
@@ -79,8 +80,23 @@ public class LANServer extends Service<Void>{
 								case "end_turn":
 									//set next character and 
 									break;
+								case "ready":
+									//opponent is ready to start game
+									break;
+								case "game_start":
+									//host has started game opponents game will now start if they are ready.
+									break;
 								case "game_board":
-									//load the board we will be using
+									int rows = json_request.getInt("rows");
+									int columns = json_request.getInt("columns");
+									int [][] board = new int[rows][columns];
+									for(int i = 0; i < rows;i++){
+										for(int j = 0; j < columns;j++){
+											board[i][j] = json_request.getJSONArray("data").getJSONArray(i).getInt(j);
+										}
+									}
+									//Main.game_board = board;
+									Main.renderPreviewMap(board);
 									break;
 								default:
 									
