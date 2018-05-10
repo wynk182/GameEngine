@@ -546,6 +546,8 @@ public class Main extends Application {
 				}
 			}
 		}
+		if(move == 4)
+			return false;
 		grid.getChildren().remove(npc);
     	grid.add(npc, moves[move][0], moves[move][1]);
 		npc.coordinates = new int[]{moves[move][0],moves[move][1]};
