@@ -183,7 +183,7 @@ public class Main extends Application {
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
 			for(int p = 0; p < players; p++){
-				Character enemy = new Character(100, 10, 10, 2);
+				Character enemy = new Character(100, 10, 10, 3);
 				enemy.name = "Enemy" + p;
 				opponents.add(enemy);
 				enemy.coordinates = new int[]{0,0};
@@ -191,8 +191,13 @@ public class Main extends Application {
 				enemy.setTriggers();
 				enemy.setFill(Color.RED);
 				Item enemy_sword = new Item();
+				enemy_sword.name = "Cutlas";
 				enemy_sword.attack_bonus = 10;
 				enemy_sword.range = 1;
+				Item enemy_armor = new Item();
+				enemy_armor.name = "Leather Tunic";
+				enemy_armor.defense_bonus = 10;
+				enemy.load_out.equipItem(enemy_armor, "body");
 				enemy.load_out.equipItem(enemy_sword, "right");
 			}
 			characters.myTeam = true;
@@ -212,11 +217,13 @@ public class Main extends Application {
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
 	        		}
+	        		/*
 	        		else if(game_board[r][c] > 6){
 	        			Rectangle gold = new Rectangle(1,1, box_size, box_size);
 	        			gold.setFill(Color.GOLD);
 	        			grid.add(gold, c,r);
 	        		}
+	        		*/
 	        	}
 	        }
 	        
@@ -378,12 +385,7 @@ public class Main extends Application {
         			Rectangle seed = new Rectangle(1,1, 20, 20);
         			seed.setFill(Color.BROWN);
         			map_preview.add(seed, c,r);
-        		}
-        		else if(map[r][c] > 6){
-        			Rectangle gold = new Rectangle(1,1, 20, 20);
-        			gold.setFill(Color.GOLD);
-        			map_preview.add(gold, c,r);
-        		}
+        		}        		
         		else{
         			Rectangle empty = new Rectangle(1,1, 20, 20);
         			empty.setFill(Color.LIGHTGREEN);
@@ -532,7 +534,7 @@ public class Main extends Application {
 		int[][] moves = new int[][]{left,right,up,down};
 		
 		double least_distance = 20;
-		int move = 0;
+		int move = 4;
 		Character target = null;
 		for(Character c : characters){
 			for(int i = 0; i < 4; i++){
