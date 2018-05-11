@@ -191,9 +191,9 @@ public class Main extends Application {
 				enemy.setTriggers();
 				enemy.setFill(Color.RED);
 				Item enemy_sword = new Item();
-				enemy_sword.name = "Pistol";
-				enemy_sword.attack_bonus = 15;
-				enemy_sword.range = 7;
+				enemy_sword.name = "Cutlass";
+				enemy_sword.attack_bonus = 10;
+				enemy_sword.range = 1;
 				Item enemy_armor = new Item();
 				enemy_armor.name = "Leather Tunic";
 				enemy_armor.defense_bonus = 10;
@@ -502,10 +502,13 @@ public class Main extends Application {
 	
 	public boolean spaceOccupied(int x, int y) {
 		try{
-			if(game_board[y][x] > 7) 
+			if(game_board[y][x] == 12) {
+				System.out.println("Item");
+			}
+			else if(game_board[y][x] > 7) 
 				return true;
 			else if(game_board[y][x] > 6) {
-				System.out.println("GOLD");
+				//System.out.println("GOLD");
 				game_board[y][x] = 0;
 				
 				return false;
@@ -564,7 +567,7 @@ public class Main extends Application {
 		return false;
 	}
 	
-	public static void attack(Character attacker, Character defender){				
+	public static int attack(Character attacker, Character defender){				
 		attacker.has_attacked = true;
 		int roll = (int) (Math.random() * 20);
 		int damage = roll + attacker.attack();		
@@ -575,7 +578,10 @@ public class Main extends Application {
 			defender.setVisible(false);
 			Main.characters.remove(defender);
 			Main.opponents.remove(defender);
+			defender.load_out.dropItems(defender.coordinates);
+			game_board[defender.coordinates[1]][defender.coordinates[0]] = 12;
 		}		
+		return (damage < defender.defense()) ? 0 : damage-defender.defense();
 	}
 	
 	public static Character selected_character = null;

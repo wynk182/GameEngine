@@ -1,7 +1,10 @@
 package application;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import javafx.scene.Node;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
@@ -55,12 +58,26 @@ public class LoadOut extends GridPane{
 		int[] slot = slots.get(place);
 		if(item != null){
 			item.equipped = true;
-			
 			this.add(item,slot[0] , slot[1]);
 		}
 		else{
 			//this.add(,slot[0] , slot[1]);
 		}
+	}
+	
+	public void dropItems(int[] where) {
+		List<Item> dropped = new ArrayList<Item>();
+		for(Node n : this.getChildren()) {
+			Item item = (Item) n;
+			item.equipped = false;
+			dropped.add(item);
+			//Main.grid.add(item,where[0],where[1]);
+		}
+		for(Item item : dropped) {
+			this.getChildren().remove(item);
+			Main.grid.add(item,where[0],where[1]);
+		}
+		//this.getChildren().removeAll(this.getChildren());
 	}
 	
 	/*

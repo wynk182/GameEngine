@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javafx.scene.Cursor;
 import javafx.scene.ImageCursor;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -38,27 +39,31 @@ public class Character extends Rectangle{
 		this.setWidth(Main.box_size);
 		this.setHeight(Main.box_size);
 		this.setFill(Color.BLUE);
-		this.setCursor(new ImageCursor(Main.CURSOR));
+		//this.setCursor(new ImageCursor(Main.CURSOR));
+		this.setCursor(Cursor.CROSSHAIR);
 		//this.setStyle("-fx-cursor: url('cursor.png');");
 		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;			
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this) && !attacker.equals(this)) {
-				attacker.has_attacked = true;
-				int roll = (int) (Math.random() * 20);
-				int damage = roll + attacker.attack();
-				Label l = new Label("" + (damage-defense()));
+				//attacker.has_attacked = true;
+				//int roll = (int) (Math.random() * 20);
+				//int damage = roll + attacker.attack();
+				int damage = Main.attack(attacker, this);
+				Label l = new Label("" + damage);
 				StackPane att = new StackPane();
 				att.getChildren().addAll(new ImageView(Main.damage), l);
 				Main.damage_box.showInfo(att,e.getSceneX()-50,e.getSceneY()-10);
 				DamageTask dt = new DamageTask(Main.damage_box, 1);
 				dt.start();
 				//Platform.runLater(new DamageTask(Main.damage_box, 5));
-				this.damage_taken += (damage < defense()) ? 0 : damage-defense();
-				if(this.damage_taken >= health()) {
-					this.setVisible(false);
-					Main.characters.remove(this);
-					Main.opponents.remove(this);
-				}
+				//this.damage_taken += (damage < defense()) ? 0 : damage-defense();
+				//if(this.damage_taken >= health()) {
+				//	this.setVisible(false);
+				//	Main.characters.remove(this);
+				//	Main.opponents.remove(this);
+				//	this.load_out.dropItems(this.coordinates);
+					//Main.grid.add(this.load_out.right_hand, this.coordinates[0], this.coordinates[1]);
+				//}
 			}			
 		});
 	}
