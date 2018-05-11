@@ -191,9 +191,9 @@ public class Main extends Application {
 				enemy.setTriggers();
 				enemy.setFill(Color.RED);
 				Item enemy_sword = new Item();
-				enemy_sword.name = "Cutlas";
-				enemy_sword.attack_bonus = 10;
-				enemy_sword.range = 1;
+				enemy_sword.name = "Pistol";
+				enemy_sword.attack_bonus = 15;
+				enemy_sword.range = 7;
 				Item enemy_armor = new Item();
 				enemy_armor.name = "Leather Tunic";
 				enemy_armor.defense_bonus = 10;
@@ -555,11 +555,13 @@ public class Main extends Application {
 		grid.getChildren().remove(npc);
     	grid.add(npc, moves[move][0], moves[move][1]);
 		npc.coordinates = new int[]{moves[move][0],moves[move][1]};
-		if(least_distance == 1.0 && target != null){
-			attack(npc,target);			
+		if(inRange(target) && target != null){
+			attack(npc,target);	
+			System.out.println(least_distance);
+
+			return true;
 		}
-		System.out.println(least_distance);
-		return (least_distance == 1.0);		
+		return false;
 	}
 	
 	public static void attack(Character attacker, Character defender){				
