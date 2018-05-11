@@ -548,6 +548,7 @@ public class Main extends Application {
 		}
 		if(move == 4){
 			move = (int) Math.random()*4;
+			//System.out.println(move);
 			//move = random
 			//return false;
 		}
