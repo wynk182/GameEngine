@@ -14,6 +14,7 @@ public class Item extends Rectangle{
 	int worth = 0;
 	int range = 0;
 	boolean equipped = false;
+	boolean saved = false;
 	//Rectangle item  = 
 	
 	public Item() {
@@ -25,20 +26,17 @@ public class Item extends Rectangle{
 		this.setOnMouseDragged(e -> {
 			if(equipped) {
 				equipped = false;
-				Main.selected_character.load_out.removeItem(this);
-				//int r = GridPane.getRowIndex(this);
-				//int c = GridPane.getColumnIndex(this);
-				Main.equip.getChildren().remove(this);
-				//Main.equip.add(new Rectangle(1,1,20,20), c, r);
-				//Main.equip.getChildren().get(0).rowIndex;
-				this.setLayoutX(e.getSceneX());
-				this.setLayoutY(e.getSceneY());
+				Main.selected_character.load_out.removeItem(this);				
+				Main.equip.getChildren().remove(this);				
+				//this.setLayoutX(e.getSceneX());
+				//this.setLayoutY(e.getSceneY());
 				Main.backpack.addToBackPack(this);
 			}
 			else {
 				Main.backpack.removeFromBackPack(this);
-				Main.selected_character.load_out.equipItem(this, this.item_type);
-				
+				if(!Main.selected_character.load_out.equipItem(this, this.item_type)){
+					Main.backpack.addToBackPack(this);
+				}				
 			}
 			
 		});

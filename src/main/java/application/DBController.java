@@ -29,7 +29,7 @@ public class DBController {
         return conn;
     }
 	
-	public static void addNewItem(String name,int item_type,int a,int d,int m,int h,int w,int r) {
+	public static void addNewItem(String name,String item_type,int a,int d,int m,int h,int w,int r) {
 		Connection c = connect();
 		try {
 			PreparedStatement pstmt = c.prepareStatement(
@@ -39,7 +39,7 @@ public class DBController {
 					+ "values (?,?,?,?,?,?,?,?);"
 					);
 			pstmt.setString(1, name);
-			pstmt.setInt(2, item_type);
+			pstmt.setString(2, item_type);
 			pstmt.setInt(3, a);
 			pstmt.setInt(4, d);
 			pstmt.setInt(5, m);
@@ -91,6 +91,7 @@ public class DBController {
 				item.health_bonus = items.getInt("health_bonus");
 				item.worth = items.getInt("worth");
 				item.range = items.getInt("range");
+				item.saved = true;
 				Main.items.put(items.getInt("id"),item);
 			}
 			items.close();

@@ -54,15 +54,18 @@ public class LoadOut extends GridPane{
         }
 	}
 	
-	public void equipItem(Item item, String place){
+	public boolean equipItem(Item item, String place){
 		int[] slot = slots.get(place);
+		for(Node n : this.getChildren()){
+			if(GridPane.getColumnIndex(n) == slot[0] && GridPane.getRowIndex(n) == slot[1]){
+				return false;
+			}
+		}
 		if(item != null){
 			item.equipped = true;
 			this.add(item,slot[0] , slot[1]);
-		}
-		else{
-			//this.add(,slot[0] , slot[1]);
-		}
+		}	
+		return true;
 	}
 	
 	public void dropItems(int[] where) {

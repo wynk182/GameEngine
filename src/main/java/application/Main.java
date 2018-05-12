@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Node;
@@ -183,7 +184,7 @@ public class Main extends Application {
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
 			for(int p = 0; p < players; p++){
-				Character enemy = new Character(100, 10, 10, 3);
+				Character enemy = new Character(100, 0, 0, 3);
 				enemy.name = "Enemy" + p;
 				opponents.add(enemy);
 				enemy.coordinates = new int[]{0,0};
@@ -194,9 +195,11 @@ public class Main extends Application {
 				enemy_sword.name = "Cutlass";
 				enemy_sword.attack_bonus = 10;
 				enemy_sword.range = 1;
+				enemy_sword.item_type = "right";
 				Item enemy_armor = new Item();
 				enemy_armor.name = "Leather Tunic";
 				enemy_armor.defense_bonus = 10;
+				enemy_armor.item_type = "body";
 				enemy.load_out.equipItem(enemy_armor, "body");
 				enemy.load_out.equipItem(enemy_sword, "right");
 			}
@@ -212,7 +215,7 @@ public class Main extends Application {
 	        			int obj = (int)(Math.random()*10);
 	        			game_board[r][c] = obj;
 	        		}
-	        		if(game_board[r][c] > 7) {
+	        		if(game_board[r][c] > 8) {
 	        			Rectangle seed = new Rectangle(1,1, box_size, box_size);
 	        			seed.setFill(Color.BROWN);
 	        			grid.add(seed, c,r);
@@ -350,10 +353,10 @@ public class Main extends Application {
 	public void playNpcTurn(){
 		for(Character c : opponents){
 			selected_character = c;
-			while(c.move1Space()){
-				if(npcMove(c)){
+			while(c.move1Space()){					
+				if(npcMove(c)){					
 					break;
-				}
+				}							
 			}
 			c.has_moved = 0;
 		}
@@ -381,7 +384,7 @@ public class Main extends Application {
         for(int r = 0; r < map.length; r++) {
         	for(int c = 0; c < map[r].length; c++) {
         		
-        		if(map[r][c] > 7) {
+        		if(map[r][c] > 8) {
         			Rectangle seed = new Rectangle(1,1, 20, 20);
         			seed.setFill(Color.BROWN);
         			map_preview.add(seed, c,r);
@@ -475,7 +478,7 @@ public class Main extends Application {
 			for(c=0;c<game_board[r].length;c++) {	
 				if(game_board[r][c] > 8){					
 					double test = distance(selected_character.coordinates,new int[] {c,r}) + distance(defender.coordinates,new int[] {c,r});
-					double tested = 0;
+					double tested = 0;					
 					if(distance > test)
 						tested = distance - test;
 					else
@@ -503,16 +506,38 @@ public class Main extends Application {
 	public boolean spaceOccupied(int x, int y) {
 		try{
 			if(game_board[y][x] == 12) {
+				game_board[y][x] = 0;
 				System.out.println("Item");
+				List<Item> pick_up = new ArrayList<Item>();
+				for(Node n : grid.getChildren()){					
+					try{
+						if(n != null && GridPane.getRowIndex(n) == y && GridPane.getColumnIndex(n) == x){							
+							Item item = (Item) n;
+							pick_up.add(item);
+						}	
+					}catch(Exception e){
+						//e.printStackTrace();
+						continue;
+					}
+				}				
+				for(Item i : pick_up){
+					//Save picked up items at end of battle
+					//DBController.addNewItem(i.name, i.item_type, i.attack_bonus,
+					//		i.defense_bonus, i.move_bonus, i.health_bonus, i.worth, i.range);
+					grid.getChildren().remove(i);
+					backpack.addToBackPack(i);
+				}				
+				return false;				
 			}
-			else if(game_board[y][x] > 7) 
+			else if(game_board[y][x] > 8) 
 				return true;
+			/*
 			else if(game_board[y][x] > 6) {
 				//System.out.println("GOLD");
-				game_board[y][x] = 0;
-				
+				game_board[y][x] = 0;				
 				return false;
 			}
+			*/
 			else {
 				for(Character c : characters) {
 					if(c.coordinates[0] == x && c.coordinates[1] == y)
@@ -524,6 +549,7 @@ public class Main extends Application {
 				}
 			}		
 		}catch(Exception e){
+			//e.printStackTrace();
 			return true;
 		}
 		return false;
@@ -574,8 +600,8 @@ public class Main extends Application {
 		defender.damage_taken += (damage < defender.defense()) ? 0 : damage-defender.defense();
 		System.out.println(attacker.name + " has attacked " + defender.name + " and dealt " +
 				((damage < defender.defense()) ? 0 : damage-defender.defense()) + " damage!");
-		if(defender.damage_taken >= defender.health()) {
-			defender.setVisible(false);
+		if(defender.damage_taken >= defender.health()) {			
+			grid.getChildren().remove(defender);
 			Main.characters.remove(defender);
 			Main.opponents.remove(defender);
 			defender.load_out.dropItems(defender.coordinates);
