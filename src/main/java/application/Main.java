@@ -18,7 +18,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.stage.Stage;
 import javafx.scene.Node;
@@ -36,6 +35,7 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.VBox;
@@ -72,18 +72,67 @@ public class Main extends Application {
 	static CharacterList characters = new CharacterList();
 	static CharacterList opponents = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
+	static File[] maps;
+	
+	public Tab loadOutTab() {
+		Tab lt = new Tab();
+		GridPane bp = new GridPane();
+		HBox top = new HBox();
+		HBox center = new HBox();
+		Label character_info = new Label();
+		Button next = new Button("Next");
+		Pane content = new Pane();
+		
+		next.setOnAction(e -> {
+			selected_character = characters.getNext();
+			top.getChildren().removeAll(top.getChildren());
+			character_info.setText(selected_character.name);
+			top.getChildren().addAll(selected_character.load_out,character_info);
+		});
+		
+		//backpack.setRotate(90);
+		
+		selected_character = characters.getNext();
+		character_info.setText(selected_character.name);
+		top.getChildren().addAll(selected_character.load_out,character_info);
+		
+		//center.getChildren().add(backpack);
+		content.getChildren().addAll(bp,info);
+		bp.add(top,1,1);
+		bp.add(backpack,0,1,1,3);
+		bp.add(next,0,4);
+		lt.setText("Characters");
+		lt.setClosable(false);
+		lt.setContent(content);
+		return lt;
+	}
 	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
 			
-			//map_preview.setStyle("-fx-background-color:lightgreen;");
+			for(Item i : items.values()) {
+				if(!i.equipped) {
+					//backpack.add(i, 0, 0);
+					backpack.addToBackPack(i);
+				}
+			}
+			
+			backpack.setPadding(new Insets(5));
+			
+			maps = new File(".").listFiles(new FilenameFilter() {
+			    public boolean accept(File dir, String name) {
+			        return name.toLowerCase().endsWith(".map");
+			    }
+			});
 			TabPane tp = new TabPane();
 			Tab single_player = new Tab("Single Player");
 			Tab multi_player = new Tab("Multi Player");
 			GridPane multi_form = new GridPane();
 			Button host = new Button("Host?");
 			Button connect = new Button("Connect?");
+			MapChooser multi = new MapChooser(maps);
+			MapChooser single = new MapChooser(maps);
 			VBox gp = new VBox();
 			Spinner<Integer> spin = new Spinner<Integer>();
 			Button start = new Button("Start Game");
@@ -94,10 +143,9 @@ public class Main extends Application {
 		    SpinnerValueFactory<Integer> valueFactory =
 		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, initialValue);
 		    
-			tp.getTabs().addAll(single_player,multi_player);
+			tp.getTabs().addAll(single_player,multi_player,loadOutTab());
 			single_player.setClosable(false);
 			multi_player.setClosable(false);
-			
 			
 			host.setOnAction(e -> {
 				try {
@@ -112,15 +160,17 @@ public class Main extends Application {
 				}
 				Button b = new Button("Start Game");
 				b.setOnAction(eb -> {
+					map_loaded = true;
+					game_board = multi.getCurrentMap();
 					startGame(primaryStage,22,22,2);
 				});
 				multi_form.add(b, 0, 3);
 			});
 			connect.setOnAction(e -> {
-				Label con_info = new Label("Enter your opponents IP");
+				//Label con_info = new Label("Enter your opponents IP");
 				TextField t = new TextField();
 				Button b = new Button("Connect");
-				multi_form.add(con_info, 0, 2);
+				//multi_form.add(con_info, 0, 2);
 				multi_form.add(t, 0, 3);
 				multi_form.add(b, 0, 4);
 				
@@ -130,10 +180,11 @@ public class Main extends Application {
 						lan = new LANServer();
 						lan.start();
 						try {
-							SendData send = new SendData(new JSONObject(
-									"{\"request\":\"connection\",\"address\":\""+ Inet4Address.getLocalHost().getHostAddress() +"\"}"
-									));
-							send.start();
+							SendData send = new SendData(new JSONObject()
+									.put("request", "connection")
+									.put("address", Inet4Address.getLocalHost().getHostAddress()));
+									//"{\"request\":\"connection\",\"address\":\""+ Inet4Address.getLocalHost().getHostAddress() +"\"}"
+									send.start();
 						} catch (JSONException | UnknownHostException e1) {
 							e1.printStackTrace();
 						}
@@ -143,8 +194,9 @@ public class Main extends Application {
 			multi_form.add(host, 0, 0);
 			multi_form.add(connect, 0, 1);
 			multi_form.add(lan_info, 0, 2);
-			map_preview.setPadding(new Insets(100));
-			multi_form.add(map_preview, 0, 5);
+			//map_preview.setPadding(new Insets(100));
+			//multi_form.add(map_preview, 0, 5);
+			multi_form.add(multi, 0, 5);
 			multi_player.setContent(multi_form);
 			
 			gp.setPadding(new Insets(20));
@@ -155,24 +207,14 @@ public class Main extends Application {
 				TextField tf = new TextField();
 				gp.getChildren().addAll(lb,tf);
 			}
-			//
-			File[] maps = new File(".").listFiles(new FilenameFilter() {
-			    public boolean accept(File dir, String name) {
-			        return name.toLowerCase().endsWith(".map");
-			    }
-			});
-			if(maps.length > 0) {
-				map_loaded = loadMap(maps[0]);
-			}
-			
-			
-		 
 		    spin.setValueFactory(valueFactory);
 			
 			start.setOnAction(e ->{
+				map_loaded = true;
+				game_board = single.getCurrentMap();
 				startGame(primaryStage,22,22,spin.getValue());
 			});
-			gp.getChildren().addAll(enemies,spin,start);
+			gp.getChildren().addAll(enemies,spin,start,single);
 			Scene setup_scene = new Scene(tp,650,550);
 			primaryStage.setScene(setup_scene);
 			primaryStage.show();
@@ -183,6 +225,7 @@ public class Main extends Application {
 	
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
+			backpack.setRotate(0);
 			for(int p = 0; p < players; p++){
 				Character enemy = new Character(100, 0, 0, 3);
 				enemy.name = "Enemy" + p;
@@ -193,12 +236,12 @@ public class Main extends Application {
 				enemy.setFill(Color.RED);
 				Item enemy_sword = new Item();
 				enemy_sword.name = "Cutlass";
-				enemy_sword.attack_bonus = 10;
+				enemy_sword.attack_bonus = 15;
 				enemy_sword.range = 1;
 				enemy_sword.item_type = "right";
 				Item enemy_armor = new Item();
 				enemy_armor.name = "Leather Tunic";
-				enemy_armor.defense_bonus = 10;
+				enemy_armor.defense_bonus = 15;
 				enemy_armor.item_type = "body";
 				enemy.load_out.equipItem(enemy_armor, "body");
 				enemy.load_out.equipItem(enemy_sword, "right");
@@ -231,14 +274,7 @@ public class Main extends Application {
 	        }
 	        
 	        selected_character = characters.getNext();
-			for(Item i : items.values()) {
-				if(!i.equipped) {
-					//backpack.add(i, 0, 0);
-					backpack.addToBackPack(i);
-				}
-			}
 			
-			backpack.setPadding(new Insets(5));
 			/*
 			Pane end_btn = new Pane();
 			Label text = new Label("End Turn");
@@ -260,12 +296,12 @@ public class Main extends Application {
 				send.start();
 			});
 			*/
-			Label end_turn = new Label("End Turn");
+			//Label end_turn = new Label("End Turn");
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
-			action_box.getChildren().addAll(character_info,moves,equip,backpack,end_turn);
-			end_turn.setOnMouseClicked(e -> {
-				playNpcTurn();
-			});
+			action_box.getChildren().addAll(character_info,moves,equip,backpack);
+			//end_turn.setOnMouseClicked(e -> {
+			//	playNpcTurn();
+			//});
 			//end_turn.setAlignment(Pos.BOTTOM_CENTER);
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
@@ -279,9 +315,10 @@ public class Main extends Application {
 	        scene.setOnKeyPressed(e -> {
 	        	System.out.println(e.getCode());
 	        	if(selected_character != null) {
-	        		int x,y = 0;
-	        		y = selected_character.coordinates[1];
-	        		x = selected_character.coordinates[0];
+	        		int x = 0,y = 0;
+	        		boolean isMove = true;
+	        		//y = selected_character.coordinates[1];
+	        		//x = selected_character.coordinates[0];
 		        	switch(e.getCode()) {		        	
 		        	case UP :
 		        	case W :
@@ -304,6 +341,7 @@ public class Main extends Application {
 		        		x = selected_character.coordinates[0] + 1;
 		        		break;
 		        	case MINUS :
+		        		isMove = false;
 		        		zoom = 2;
 		        		box_size = 25;
 		        		setZoom(box_size);
@@ -312,6 +350,7 @@ public class Main extends Application {
 		        		}
 		        		break;
 		        	case EQUALS :
+		        		isMove = false;
 		        		zoom = 1;
 		        		box_size = 50;
 		        		setZoom(box_size);
@@ -319,15 +358,21 @@ public class Main extends Application {
 		        			c.setZoom(box_size);
 		        		}
 		        		break;
+		        	case E :
+		        		isMove = false;
+		        		playNpcTurn();
+		        		break;
 		        	case SPACE :
+		        		isMove = false;
 		        		setActiveCharacter();
+		        		break;
 					default:
 						y = selected_character.coordinates[1];
 		        		x = selected_character.coordinates[0];
 						break;
 		        	}
 		        	//System.out.println(spaceOccupied(x,y));
-		        	if(!spaceOccupied(x,y) && selected_character.move1Space()) {
+		        	if(isMove && !spaceOccupied(x,y) && selected_character.move1Space()) {
 		        		grid.getChildren().remove(selected_character);
 			        	grid.add(selected_character, x, y);
 			        	//game_board.get(y).put(x, 10);
@@ -369,15 +414,17 @@ public class Main extends Application {
 	
 	public static void renderPreviewMap(int[][] map) {
 		map_preview.getChildren().removeAll(map_preview.getChildren());
+		map_preview.getColumnConstraints().removeAll(map_preview.getColumnConstraints());
+		map_preview.getRowConstraints().removeAll(map_preview.getRowConstraints());
 		//map_preview = new GridPane();
 		
 		for(int i = 0; i < map[0].length; i++) {
-            ColumnConstraints column = new ColumnConstraints(20);
+            ColumnConstraints column = new ColumnConstraints(10);
             map_preview.getColumnConstraints().add(column);
         }
 
         for(int i = 0; i < map.length; i++) {
-            RowConstraints row = new RowConstraints(20);
+            RowConstraints row = new RowConstraints(10);
             map_preview.getRowConstraints().add(row);
         }
 		
@@ -385,12 +432,12 @@ public class Main extends Application {
         	for(int c = 0; c < map[r].length; c++) {
         		
         		if(map[r][c] > 8) {
-        			Rectangle seed = new Rectangle(1,1, 20, 20);
+        			Rectangle seed = new Rectangle(1,1, 10, 10);
         			seed.setFill(Color.BROWN);
         			map_preview.add(seed, c,r);
         		}        		
         		else{
-        			Rectangle empty = new Rectangle(1,1, 20, 20);
+        			Rectangle empty = new Rectangle(1,1, 10, 10);
         			empty.setFill(Color.LIGHTGREEN);
         			map_preview.add(empty, c,r);
         		}
@@ -581,6 +628,8 @@ public class Main extends Application {
 			//move = random
 			//return false;
 		}
+		if(moves[move][0] == -1 || moves[move][1] == -1)
+			return false;
 		grid.getChildren().remove(npc);
     	grid.add(npc, moves[move][0], moves[move][1]);
 		npc.coordinates = new int[]{moves[move][0],moves[move][1]};

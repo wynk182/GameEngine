@@ -24,19 +24,21 @@ public class Item extends Rectangle{
 		    System.out.println(this.name);		    
 		});
 		this.setOnMouseDragged(e -> {
-			if(equipped) {
-				equipped = false;
-				Main.selected_character.load_out.removeItem(this);				
-				Main.equip.getChildren().remove(this);				
-				//this.setLayoutX(e.getSceneX());
-				//this.setLayoutY(e.getSceneY());
-				Main.backpack.addToBackPack(this);
-			}
-			else {
-				Main.backpack.removeFromBackPack(this);
-				if(!Main.selected_character.load_out.equipItem(this, this.item_type)){
+			if(Main.selected_character!=null) {
+				if(equipped) {
+					equipped = false;
+					Main.selected_character.load_out.removeItem(this);				
+					Main.equip.getChildren().remove(this);				
+					//this.setLayoutX(e.getSceneX());
+					//this.setLayoutY(e.getSceneY());
 					Main.backpack.addToBackPack(this);
-				}				
+				}
+				else {
+					Main.backpack.removeFromBackPack(this);
+					if(!Main.selected_character.load_out.equipItem(this, this.item_type)){
+						Main.backpack.addToBackPack(this);
+					}				
+				}
 			}
 			
 		});

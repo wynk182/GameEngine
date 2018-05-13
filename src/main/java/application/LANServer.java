@@ -69,52 +69,72 @@ public class LANServer extends Service<Void>{
 							try {
 								switch(json_request.getString("request")){
 								case "character":
-									Character c = Character.fromJson(json_request);
-									Main.opponents.add(c);
-									Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										Character c = Character.fromJson(json_request);
+										Main.opponents.add(c);
+										Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+									}
+									
 									break;
 								case "connection":									
 									Main.opponent_address = json_request.getString("address");
 									Main.lan_info.setText("Recieved Connection from: " + Main.opponent_address);
+									//System.out.println(GameUtil.GAME_ID);
+									SendData send = new SendData(new JSONObject()
+											.put("game", GameUtil.GAME_ID)
+											.put("request", "game_id"));
+									send.start();
+									
 									break;	
+								case "game_id":
+									GameUtil.setGameId(json_request.getString("game"));
+									Main.lan_info.setText("recieved game id: " + GameUtil.GAME_ID);
+									//System.out.println(GameUtil.GAME_ID);
+									break;
 								case "end_turn":
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										
+									}
 									//set next character and 
 									break;
 								case "ready":
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										
+									}
 									//opponent is ready to start game
 									break;
 								case "game_start":
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										
+									}
 									//host has started game opponents game will now start if they are ready.
 									break;
 								case "game_board":
-									int rows = json_request.getInt("rows");
-									int columns = json_request.getInt("columns");
-									int [][] board = new int[rows][columns];
-									for(int i = 0; i < rows;i++){
-										for(int j = 0; j < columns;j++){
-											board[i][j] = json_request.getJSONArray("data").getJSONArray(i).getInt(j);
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										int rows = json_request.getInt("rows");
+										int columns = json_request.getInt("columns");
+										int [][] board = new int[rows][columns];
+										for(int i = 0; i < rows;i++){
+											for(int j = 0; j < columns;j++){
+												board[i][j] = json_request.getJSONArray("data").getJSONArray(i).getInt(j);
+											}
 										}
+										//Main.game_board = board;
+										Main.renderPreviewMap(board);
 									}
-									//Main.game_board = board;
-									Main.renderPreviewMap(board);
 									break;
 								default:
 									
 									break;
-								}
-									
-								
+								}	
 							} catch (JSONException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}							
-							
 						}            			
             		});
             	}
-            	
             }
         };
 	}
-
 }
