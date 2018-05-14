@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javafx.scene.Node;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
@@ -81,6 +85,33 @@ public class LoadOut extends GridPane{
 			Main.grid.add(item,where[0],where[1]);
 		}
 		//this.getChildren().removeAll(this.getChildren());
+	}
+	
+	public JSONObject toJson(){
+		JSONObject load_out = null;
+		try {
+			load_out = new JSONObject()
+					.put("request", "load_out")
+					.put("game", GameUtil.GAME_ID);
+			JSONArray items = new JSONArray();
+			for(Node n : this.getChildren()){
+				Item i = (Item) n;
+				items.put(new JSONObject()
+						.put("type", i.item_type)
+						.put("name", i.name)
+						.put("att", i.attack_bonus)
+						.put("def", i.defense_bonus)
+						.put("mv", i.move_bonus)
+						.put("hp", i.health_bonus)
+						.put("w", i.worth)
+						.put("rng", i.range));
+			}
+					//.put("", value);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return load_out;
 	}
 	
 	/*

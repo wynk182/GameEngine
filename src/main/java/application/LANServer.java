@@ -70,8 +70,8 @@ public class LANServer extends Service<Void>{
 								switch(json_request.getString("request")){
 								case "character":
 									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										if(Main.opponents.containsKey(json_request.get("game_id"))) {
-											Character c = Main.opponents.get(json_request.get("game_id"));
+										if(Main.opponents.containsKey(json_request.get("character_id"))) {
+											Character c = Main.opponents.get(json_request.get("character_id"));
 											Main.grid.getChildren().remove(c);
 											Main.grid.add(c, json_request.getJSONArray("coordinates").getInt(0),
 													json_request.getJSONArray("coordinates").getInt(1));
@@ -103,6 +103,9 @@ public class LANServer extends Service<Void>{
 											c.load_out.dropItems(c.coordinates);
 										}
 									}
+									break;
+								case "load_out":
+									
 									break;
 								case "connection":									
 									Main.opponent_address = json_request.getString("address");
@@ -150,8 +153,13 @@ public class LANServer extends Service<Void>{
 										Main.game_board = board;
 										Main.renderPreviewMap(board);
 										for(Character c : Main.characters.values()) {
+											//JSONObject character_data = new JSONObject();
+											//character_data.put("character", c.toJson());
+											//character_data.put("load_out", c.load_out.toJson());
 											SendData send_character = new SendData(c.toJson());
 											send_character.start();
+											SendData send_load_out = new SendData(c.load_out.toJson().put("caracter_id", c.game_id));
+											send_load_out.start();
 										}
 										Main.start_game.setDisable(false);
 									}
