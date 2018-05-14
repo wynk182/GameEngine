@@ -84,6 +84,26 @@ public class LANServer extends Service<Void>{
 										}
 									}
 									break;
+								case "move":
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										Character c = Main.opponents.get(json_request.get("character_id"));
+										c.coordinates = new int[] {json_request.getInt("x"),json_request.getInt("y")};
+										Main.grid.getChildren().remove(c);
+										Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+										
+									}
+									break;
+								case "attack":
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										Character c = Main.characters.get(json_request.getString("character_id"));
+										c.damage_taken += json_request.getInt("damage");
+										if(c.health() <= c.damage_taken) {
+											Main.characters.remove(c.game_id);
+											Main.grid.getChildren().remove(c);
+											c.load_out.dropItems(c.coordinates);
+										}
+									}
+									break;
 								case "connection":									
 									Main.opponent_address = json_request.getString("address");
 									Main.lan_info.setText("Recieved Connection from: " + Main.opponent_address);

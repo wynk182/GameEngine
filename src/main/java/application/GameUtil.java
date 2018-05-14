@@ -6,6 +6,8 @@ public class GameUtil {
 	
 	public static String GAME_ID;
 	
+	public static boolean MULTIPLAYER = false;
+	
 	public static void setGameId(String id){
 		GAME_ID = id;
 	}

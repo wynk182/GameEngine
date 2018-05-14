@@ -403,6 +403,19 @@ public class Main extends Application {
 			        	selected_character.coordinates = new int[] {x,y};
 		        		moves.setText("Moves: " + (selected_character.moves() - selected_character.has_moved));
 		        		centerScreen();
+		        		if(GameUtil.MULTIPLAYER) {
+		        			try {
+								SendData send = new SendData(new JSONObject()
+										.put("game", GameUtil.GAME_ID)
+										.put("request", "move")
+										.put("character_id", selected_character.game_id)
+										.put("x", x)
+										.put("y", y));
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+		        		}
 		        	}
 		        	
 	        	}

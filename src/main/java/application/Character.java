@@ -31,6 +31,7 @@ public class Character extends Rectangle{
 	
 	public Character(int h, int a, int d, int m) {	
 		this.game_id = GameUtil.getSaltString(5);
+		System.out.println(this.game_id);
 		this.health = h;
 		this.attack = a;
 		this.defense = d;
@@ -44,9 +45,7 @@ public class Character extends Rectangle{
 		this.setOnMouseClicked(e -> {			
 			Character attacker = Main.selected_character;			
 			if(attacker != null && !attacker.has_attacked && Main.inRange(this) && !attacker.equals(this)) {
-				//attacker.has_attacked = true;
-				//int roll = (int) (Math.random() * 20);
-				//int damage = roll + attacker.attack();
+				
 				int damage = Main.attack(attacker, this);
 				Label l = new Label("" + damage);
 				StackPane att = new StackPane();
@@ -54,15 +53,19 @@ public class Character extends Rectangle{
 				Main.damage_box.showInfo(att,e.getSceneX()-50,e.getSceneY()-10);
 				DamageTask dt = new DamageTask(Main.damage_box, 1);
 				dt.start();
-				//Platform.runLater(new DamageTask(Main.damage_box, 5));
-				//this.damage_taken += (damage < defense()) ? 0 : damage-defense();
-				//if(this.damage_taken >= health()) {
-				//	this.setVisible(false);
-				//	Main.characters.remove(this);
-				//	Main.opponents.remove(this);
-				//	this.load_out.dropItems(this.coordinates);
-					//Main.grid.add(this.load_out.right_hand, this.coordinates[0], this.coordinates[1]);
-				//}
+				if(GameUtil.MULTIPLAYER) {
+					try {
+						SendData send = new SendData(new JSONObject()
+								.put("game", GameUtil.GAME_ID)
+								.put("request", "attack")
+								.put("character_id", this.game_id)
+								.put("damage", damage));
+						send.start();
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 			}			
 		});
 	}
