@@ -126,7 +126,7 @@ public class DBController {
 				character.load_out = load_out;
 				character.setTriggers();
 				//character.setLoadOut(load_out);
-				Main.characters.add(character);
+				Main.characters.put(character.game_id,character);
 				//System.out.println("Item in right hand is " + load_out.right_hand.name);
 			}
 		} catch (SQLException e) {

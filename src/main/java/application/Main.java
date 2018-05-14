@@ -62,6 +62,9 @@ public class Main extends Application {
 	Label moves = new Label();
 	int zoom = 2;
 	
+	static Button start_game = new Button("Start Game");
+
+	
 	int players = 1;
 	boolean map_loaded = false;
 	static GridPane map_preview = new GridPane();
@@ -148,6 +151,7 @@ public class Main extends Application {
 			multi_player.setClosable(false);
 			
 			host.setOnAction(e -> {
+				multi_form.add(multi, 0, 5);
 				try {
 					GameUtil.createGameId();
 				    InetAddress addr = Inet4Address.getLocalHost();				    
@@ -162,17 +166,38 @@ public class Main extends Application {
 				b.setOnAction(eb -> {
 					map_loaded = true;
 					game_board = multi.getCurrentMap();
-					startGame(primaryStage,22,22,2);
+					try {
+						SendData send = new SendData(new JSONObject()
+								.put("game", GameUtil.GAME_ID)
+								.put("rows", game_board.length)
+								.put("columns", game_board[0].length)
+								.put("data", game_board)
+								.put("request", "game_board"));
+						send.start();
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					startGame(primaryStage,22,22,0);
 				});
 				multi_form.add(b, 0, 3);
 			});
+			multi_form.add(start_game, 0, 6);
+			start_game.setDisable(true);
+
 			connect.setOnAction(e -> {
+				multi_form.add(map_preview, 0, 5);
 				//Label con_info = new Label("Enter your opponents IP");
 				TextField t = new TextField();
 				Button b = new Button("Connect");
 				//multi_form.add(con_info, 0, 2);
 				multi_form.add(t, 0, 3);
 				multi_form.add(b, 0, 4);
+				
+				
+				start_game.setOnAction(st -> {
+					startGame(primaryStage,22,22,0);
+				});
 				
 				b.setOnAction(btn -> {
 					if(!t.getText().isEmpty()){
@@ -195,8 +220,7 @@ public class Main extends Application {
 			multi_form.add(connect, 0, 1);
 			multi_form.add(lan_info, 0, 2);
 			//map_preview.setPadding(new Insets(100));
-			//multi_form.add(map_preview, 0, 5);
-			multi_form.add(multi, 0, 5);
+			
 			multi_player.setContent(multi_form);
 			
 			gp.setPadding(new Insets(20));
@@ -229,7 +253,7 @@ public class Main extends Application {
 			for(int p = 0; p < players; p++){
 				Character enemy = new Character(100, 0, 0, 3);
 				enemy.name = "Enemy" + p;
-				opponents.add(enemy);
+				opponents.put(enemy.game_id,enemy);
 				enemy.coordinates = new int[]{0,0};
 				grid.add(enemy, 0, 0);
 				enemy.setTriggers();
@@ -345,7 +369,7 @@ public class Main extends Application {
 		        		zoom = 2;
 		        		box_size = 25;
 		        		setZoom(box_size);
-		        		for(Character c : characters) {
+		        		for(Character c : characters.values()) {
 		        			c.setZoom(box_size);
 		        		}
 		        		break;
@@ -354,7 +378,7 @@ public class Main extends Application {
 		        		zoom = 1;
 		        		box_size = 50;
 		        		setZoom(box_size);
-		        		for(Character c : characters) {
+		        		for(Character c : characters.values()) {
 		        			c.setZoom(box_size);
 		        		}
 		        		break;
@@ -396,7 +420,7 @@ public class Main extends Application {
 	}
 	
 	public void playNpcTurn(){
-		for(Character c : opponents){
+		for(Character c : opponents.values()){
 			selected_character = c;
 			while(c.move1Space()){					
 				if(npcMove(c)){					
@@ -405,7 +429,7 @@ public class Main extends Application {
 			}
 			c.has_moved = 0;
 		}
-		for(Character c : characters){
+		for(Character c : characters.values()){
 			c.has_attacked = false;
 			c.has_moved = 0;
 		}
@@ -586,11 +610,11 @@ public class Main extends Application {
 			}
 			*/
 			else {
-				for(Character c : characters) {
+				for(Character c : characters.values()) {
 					if(c.coordinates[0] == x && c.coordinates[1] == y)
 						return true;
 				}
-				for(Character c : opponents) {
+				for(Character c : opponents.values()) {
 					if(c.coordinates[0] == x && c.coordinates[1] == y)
 						return true;
 				}
@@ -612,7 +636,7 @@ public class Main extends Application {
 		double least_distance = 20;
 		int move = 4;
 		Character target = null;
-		for(Character c : characters){
+		for(Character c : characters.values()){
 			for(int i = 0; i < 4; i++){
 				double distance = distance(moves[i],c.coordinates);
 				if(distance < least_distance && !spaceOccupied(moves[i][0],moves[i][1])){
@@ -651,8 +675,8 @@ public class Main extends Application {
 				((damage < defender.defense()) ? 0 : damage-defender.defense()) + " damage!");
 		if(defender.damage_taken >= defender.health()) {			
 			grid.getChildren().remove(defender);
-			Main.characters.remove(defender);
-			Main.opponents.remove(defender);
+			Main.characters.remove(defender.game_id);
+			Main.opponents.remove(defender.game_id);
 			defender.load_out.dropItems(defender.coordinates);
 			game_board[defender.coordinates[1]][defender.coordinates[0]] = 12;
 		}		

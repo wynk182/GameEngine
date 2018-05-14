@@ -70,11 +70,19 @@ public class LANServer extends Service<Void>{
 								switch(json_request.getString("request")){
 								case "character":
 									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										Character c = Character.fromJson(json_request);
-										Main.opponents.add(c);
-										Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+										if(Main.opponents.containsKey(json_request.get("game_id"))) {
+											Character c = Main.opponents.get(json_request.get("game_id"));
+											Main.grid.getChildren().remove(c);
+											Main.grid.add(c, json_request.getJSONArray("coordinates").getInt(0),
+													json_request.getJSONArray("coordinates").getInt(1));
+											break;
+										}
+										else {
+											Character c = Character.fromJson(json_request);
+											Main.opponents.put(c.game_id, c);
+											Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
+										}
 									}
-									
 									break;
 								case "connection":									
 									Main.opponent_address = json_request.getString("address");
@@ -119,8 +127,13 @@ public class LANServer extends Service<Void>{
 												board[i][j] = json_request.getJSONArray("data").getJSONArray(i).getInt(j);
 											}
 										}
-										//Main.game_board = board;
+										Main.game_board = board;
 										Main.renderPreviewMap(board);
+										for(Character c : Main.characters.values()) {
+											SendData send_character = new SendData(c.toJson());
+											send_character.start();
+										}
+										Main.start_game.setDisable(false);
 									}
 									break;
 								default:

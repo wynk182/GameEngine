@@ -145,7 +145,8 @@ public class Character extends Rectangle{
 		JSONObject character = new JSONObject();
 		try {
 			character
-				//.put("request", "character")
+				.put("game", GameUtil.GAME_ID)
+				.put("request", "character")
 				.put("game_id", this.game_id)
 				.put("name", this.name)
 				.put("damage_taken", this.damage_taken)
@@ -196,6 +197,7 @@ public class Character extends Rectangle{
 			c.coordinates = coordinates;
 			c.load_out = new LoadOut();
 			c.name = json.getString("name");
+			c.game_id = json.getString("game_id");
 			c.setTriggers();
 			return c;
 		} catch (JSONException e) {
