@@ -102,6 +102,7 @@ public class Main extends Application {
 		});
 		
 		save.setOnAction(e -> {
+			selected_character.name = tf.getText();
 			DBController.updateCharacter(selected_character);
 		});
 		
