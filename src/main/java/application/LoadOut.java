@@ -106,7 +106,7 @@ public class LoadOut extends GridPane{
 						.put("w", i.worth)
 						.put("rng", i.range));
 			}
-					//.put("", value);
+			load_out.put("items", items);		//.put("", value);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -114,51 +114,35 @@ public class LoadOut extends GridPane{
 		return load_out;
 	}
 	
-	/*
-	public LoadOut(Item r, Item l, Item h, Item b, Item f){
-		if(r != null)
-			r.equipped=true;
-		if(l != null)
-			l.equipped=true;
-		if(h != null)
-			h.equipped=true;
-		if(b != null)
-			b.equipped=true;
-		if(f != null)
-			f.equipped=true;
+	public static LoadOut fromJson(JSONObject json){
+		LoadOut load_out = new LoadOut();
+		try {
+			JSONArray items = json.getJSONArray("items");
+			for(int i = 0; i < items.length(); i++){
+				JSONObject index = items.getJSONObject(i);
+				Item item = new Item();
+				item.name = index.getString("name");
+				item.item_type = index.getString("type");
+				item.attack_bonus = index.getInt("att");
+				item.defense_bonus = index.getInt("def");
+				item.move_bonus = index.getInt("mv");
+				item.health_bonus = index.getInt("hp");
+				item.worth = index.getInt("w");
+				item.range = index.getInt("rng");
+				load_out.equipItem(item, item.item_type);
+				
+			}
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return load_out;
 		
-		right_hand = r;
-		left_hand = l;
-		body = b;
-		feet = f;
-		head = h;
-		items.add(r);
-		items.add(l);
-		items.add(b);
-		items.add(f);
-		items.add(h);
 	}
-	*/
+	
 	public void removeItem(Item item) {
 		this.getChildren().remove(item);
-		//items.remove(item);
-		/*
-		if(item.equals(right_hand)) {
-			right_hand = null;
-		}
-		if(item.equals(left_hand)) {
-			left_hand = null;
-		}
-		if(item.equals(head)) {
-			head = null;
-		}
-		if(item.equals(body)) {
-			body = null;
-		}
-		if(item.equals(feet)) {
-			feet = null;
-		}
-		*/
+		
 	}
 	
 }

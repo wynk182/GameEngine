@@ -151,6 +151,7 @@ public class Main extends Application {
 			multi_player.setClosable(false);
 			
 			host.setOnAction(e -> {
+				GameUtil.MULTIPLAYER = true;
 				multi_form.add(multi, 0, 5);
 				try {
 					GameUtil.createGameId();
@@ -186,6 +187,9 @@ public class Main extends Application {
 			start_game.setDisable(true);
 
 			connect.setOnAction(e -> {
+				GameUtil.MULTIPLAYER = true;
+
+				multi_form.getChildren().remove(multi);
 				multi_form.add(map_preview, 0, 5);
 				//Label con_info = new Label("Enter your opponents IP");
 				TextField t = new TextField();
@@ -234,6 +238,8 @@ public class Main extends Application {
 		    spin.setValueFactory(valueFactory);
 			
 			start.setOnAction(e ->{
+				GameUtil.MULTIPLAYER = false;
+
 				map_loaded = true;
 				game_board = single.getCurrentMap();
 				startGame(primaryStage,22,22,spin.getValue());
@@ -384,7 +390,20 @@ public class Main extends Application {
 		        		break;
 		        	case E :
 		        		isMove = false;
-		        		playNpcTurn();
+		        		if(GameUtil.MULTIPLAYER){
+		        			try {
+								SendData send = new SendData(new JSONObject()
+										.put("request", "end_turn")
+										.put("game", GameUtil.GAME_ID));
+								send.start();
+							} catch (JSONException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+		        		}
+		        		else{
+			        		playNpcTurn();
+		        		}
 		        		break;
 		        	case SPACE :
 		        		isMove = false;
@@ -411,6 +430,7 @@ public class Main extends Application {
 										.put("character_id", selected_character.game_id)
 										.put("x", x)
 										.put("y", y));
+								send.start();
 							} catch (JSONException e1) {
 								// TODO Auto-generated catch block
 								e1.printStackTrace();

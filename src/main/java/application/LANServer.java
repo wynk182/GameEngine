@@ -105,7 +105,10 @@ public class LANServer extends Service<Void>{
 									}
 									break;
 								case "load_out":
-									
+									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
+										Character c = Main.opponents.get(json_request.getString("character_id"));
+										c.load_out = LoadOut.fromJson(json_request);
+									}
 									break;
 								case "connection":									
 									Main.opponent_address = json_request.getString("address");
@@ -124,7 +127,10 @@ public class LANServer extends Service<Void>{
 									break;
 								case "end_turn":
 									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										
+										for(Character c : Main.characters.values()){
+											c.has_attacked = false;
+											c.has_moved = 0;
+										}
 									}
 									//set next character and 
 									break;
