@@ -80,8 +80,7 @@ public class DBController {
 		Connection c = connect();
 		try {
 			PreparedStatement pstmt = c.prepareStatement(
-					"update characters set (name,spec,gender)"
-					+ " = (?,?,?) where id = "+character.localDBID+";"
+					"update characters set name = ?, spec = ?, gender = ? where id = "+character.localDBID+";"
 					);
 			pstmt.setString(1, character.name);
 			pstmt.setInt(2, 0);
@@ -89,13 +88,14 @@ public class DBController {
 			pstmt.execute();
 			pstmt.close();
 			pstmt = c.prepareStatement(""
-					+ "update loadouts set (right_hand,left_hand,body,head,feet) "
-					+ "= (?,?,?,?,?) where character_id = " + character.localDBID + ";");
-			pstmt.setInt(1, 0);
-			pstmt.setInt(2, 0);
-			pstmt.setInt(3, 0);
-			pstmt.setInt(4, 0);
-			pstmt.setInt(5, 0);
+					+ "update loadouts set right_hand =?, left_hand = ?, body = ?, head = ?, feet = ? where character_id = " + character.localDBID + ";");
+			pstmt.setInt(1, (character.load_out.right_hand != null)? character.load_out.right_hand.localDBID : 0);
+			pstmt.setInt(2, (character.load_out.left_hand != null)? character.load_out.left_hand.localDBID : 0);
+			pstmt.setInt(3, (character.load_out.body != null)? character.load_out.body.localDBID : 0);
+			pstmt.setInt(4, (character.load_out.head != null)? character.load_out.head.localDBID : 0);
+			pstmt.setInt(5, (character.load_out.feet != null)? character.load_out.feet.localDBID : 0);
+			pstmt.execute();
+			pstmt.close();
 			c.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -110,6 +110,7 @@ public class DBController {
 			ResultSet items = conn.createStatement().executeQuery(sql);
 			while(items.next()){
 				Item item = new Item();
+				item.localDBID = items.getInt("id");
 				item.name = items.getString("name");
 				item.item_type = items.getString("item_type");
 				item.attack_bonus = items.getInt("attack_bonus");
@@ -119,7 +120,7 @@ public class DBController {
 				item.worth = items.getInt("worth");
 				item.range = items.getInt("range");
 				item.saved = true;
-				Main.items.put(items.getInt("id"),item);
+				Main.items.put(item.localDBID,item);
 			}
 			items.close();
 			sql = "select * from characters;";		

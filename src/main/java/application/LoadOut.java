@@ -68,6 +68,23 @@ public class LoadOut extends GridPane{
 		if(item != null){
 			item.equipped = true;
 			this.add(item,slot[0] , slot[1]);
+			switch (place){
+			case "right":
+				this.right_hand = item;
+				break;
+			case "left":
+				this.left_hand = item;
+				break;
+			case "head":
+				this.head = item;
+				break;
+			case "body":
+				this.body = item;
+				break;
+			case "feet":
+				this.feet = item;
+				break;
+			}
 		}	
 		return true;
 	}
@@ -141,6 +158,23 @@ public class LoadOut extends GridPane{
 	}
 	
 	public void removeItem(Item item) {
+		switch (item.item_type){
+		case "right":
+			this.right_hand = null;
+			break;
+		case "left":
+			this.left_hand = null;
+			break;
+		case "head":
+			this.head = null;
+			break;
+		case "body":
+			this.body = null;
+			break;
+		case "feet":
+			this.feet = null;
+			break;
+		}
 		this.getChildren().remove(item);
 		
 	}
