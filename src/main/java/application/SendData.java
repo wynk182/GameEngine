@@ -13,6 +13,7 @@ public class SendData extends Service<Void> {
 	int game_port = 1337;
 	
 	public SendData(JSONObject data){
+		System.out.println("Sending... " + Main.opponent_address + ":" + this.game_port + " " + data);
 		json_data = data;
 	}
 
