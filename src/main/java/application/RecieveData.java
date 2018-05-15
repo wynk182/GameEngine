@@ -91,6 +91,7 @@ public class RecieveData extends Service<Void>{
 								break;
 							case "end_turn":
 								if(data.getString("game").equals(GameUtil.GAME_ID)) {
+									Main.game_info.hideInfo();
 									for(Character c : Main.characters.values()){
 										c.has_attacked = false;
 										c.has_moved = 0;

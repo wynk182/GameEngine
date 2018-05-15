@@ -54,8 +54,9 @@ public class Main extends Application {
 	static final Image armor_stand = new Image(new File("armorstand.png").toURI().toString());
 	static final Image damage = new Image(new File("damage.png").toURI().toString());
 	static GridPane grid = new GridPane();
-	static InfoBox info = new InfoBox("whitesmoke;");
+	static InfoBox info = new InfoBox("whitesmoke");
 	static InfoBox damage_box = new InfoBox("transparent");
+	static InfoBox game_info = new InfoBox("whitesmoke");
 	VBox action_box = new VBox();
 	static LoadOut equip = new LoadOut();
 	static Pane bp = new Pane();
@@ -438,6 +439,7 @@ public class Main extends Application {
 		        		isMove = false;
 		        		if(GameUtil.MULTIPLAYER){
 		        			try {
+		        				game_info.showInfo(new Label("Opponents Turn"), 325, 225);
 								SendData send = new SendData(new JSONObject()
 										.put("request", "end_turn")
 										.put("game", GameUtil.GAME_ID));
