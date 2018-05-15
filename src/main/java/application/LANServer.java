@@ -6,10 +6,8 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
@@ -63,124 +61,8 @@ public class LANServer extends Service<Void>{
             		game.close();
             		s.close();
             		
-            		Platform.runLater(new Runnable(){
-						@Override
-						public void run() {
-							try {
-								switch(json_request.getString("request")){
-								case "character":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										if(Main.opponents.containsKey(json_request.get("character_id"))) {
-											Character c = Main.opponents.get(json_request.get("character_id"));
-											Main.grid.getChildren().remove(c);
-											Main.grid.add(c, json_request.getJSONArray("coordinates").getInt(0),
-													json_request.getJSONArray("coordinates").getInt(1));
-											break;
-										}
-										else {
-											Character c = Character.fromJson(json_request);
-											Main.opponents.put(c.game_id, c);
-											Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
-										}
-									}
-									break;
-								case "move":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										Character c = Main.opponents.get(json_request.get("character_id"));
-										c.coordinates = new int[] {json_request.getInt("x"),json_request.getInt("y")};
-										Main.grid.getChildren().remove(c);
-										Main.grid.add(c, c.coordinates[0], c.coordinates[1]);
-										
-									}
-									break;
-								case "attack":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										Character c = Main.characters.get(json_request.getString("character_id"));
-										c.damage_taken += json_request.getInt("damage");
-										if(c.health() <= c.damage_taken) {
-											Main.characters.remove(c.game_id);
-											Main.grid.getChildren().remove(c);
-											c.load_out.dropItems(c.coordinates);
-										}
-									}
-									break;
-								case "load_out":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										Character c = Main.opponents.get(json_request.getString("character_id"));
-										c.load_out = LoadOut.fromJson(json_request);
-									}
-									break;
-								case "connection":									
-									Main.opponent_address = json_request.getString("address");
-									Main.lan_info.setText("Recieved Connection from: " + Main.opponent_address);
-									//System.out.println(GameUtil.GAME_ID);
-									SendData send = new SendData(new JSONObject()
-											.put("game", GameUtil.GAME_ID)
-											.put("request", "game_id"));
-									send.start();
-									
-									break;	
-								case "game_id":
-									GameUtil.setGameId(json_request.getString("game"));
-									Main.lan_info.setText("recieved game id: " + GameUtil.GAME_ID);
-									//System.out.println(GameUtil.GAME_ID);
-									break;
-								case "end_turn":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										for(Character c : Main.characters.values()){
-											c.has_attacked = false;
-											c.has_moved = 0;
-										}
-									}
-									//set next character and 
-									break;
-								case "ready":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										
-									}
-									//opponent is ready to start game
-									break;
-								case "game_start":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										
-									}
-									//host has started game opponents game will now start if they are ready.
-									break;
-								case "game_board":
-									if(json_request.getString("game").equals(GameUtil.GAME_ID)) {
-										int rows = json_request.getInt("rows");
-										int columns = json_request.getInt("columns");
-										int [][] board = new int[rows][columns];
-										for(int i = 0; i < rows;i++){
-											for(int j = 0; j < columns;j++){
-												board[i][j] = json_request.getJSONArray("data").getJSONArray(i).getInt(j);
-											}
-										}
-										Main.game_board = board;
-										Main.renderPreviewMap(board);
-										for(Character c : Main.characters.values()) {
-											//JSONObject character_data = new JSONObject();
-											//character_data.put("character", c.toJson());
-											//character_data.put("load_out", c.load_out.toJson());
-											SendData send_character = new SendData(c.toJson());
-											send_character.start();
-											SendData send_load_out = new SendData(c.load_out.toJson()
-													.put("caracter_id", c.game_id));
-											send_load_out.start();
-										}
-										Main.start_game.setDisable(false);
-									}
-									break;
-								default:
-									
-									break;
-								}	
-							} catch (JSONException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}							
-						}            			
-            		});
+            		RecieveData recieve = new RecieveData(json_request);
+            		recieve.start();
             	}
             }
         };

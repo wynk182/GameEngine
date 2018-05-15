@@ -149,8 +149,8 @@ public class Character extends Rectangle{
 		JSONObject character = new JSONObject();
 		try {
 			character
-				.put("game", GameUtil.GAME_ID)
-				.put("request", "character")
+				//.put("game", GameUtil.GAME_ID)
+				//.put("request", "character")
 				.put("character_id", this.game_id)
 				.put("name", this.name)
 				.put("damage_taken", this.damage_taken)

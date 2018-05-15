@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -186,7 +187,26 @@ public class Main extends Application {
 				} catch (UnknownHostException et) {
 					et.printStackTrace();
 				}
-				Button b = new Button("Start Game");
+				Button a = new Button("Start Game");
+				a.setOnAction(ea -> {
+					
+					try {
+						JSONArray character_array = new JSONArray();
+						for(Character c : characters.values()) {														
+							character_array.put(c.toJson().put("load_out", c.load_out.toJson()));							
+						}
+						SendData send_characters = new SendData(new JSONObject()
+								.put("request", "character")
+								.put("game", GameUtil.GAME_ID)
+								.put("characters", character_array));
+						send_characters.start();
+					} catch (JSONException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					startGame(primaryStage,22,22,0);
+				});
+				Button b = new Button("Set Map");
 				b.setOnAction(eb -> {
 					map_loaded = true;
 					game_board = multi.getCurrentMap();
@@ -198,20 +218,15 @@ public class Main extends Application {
 								.put("data", game_board)
 								.put("request", "game_board"));
 						send.start();
-						for(Character c : characters.values()) {
-							SendData character_data = new SendData(c.toJson()); 
-							SendData load_out_data = new SendData(c.load_out.toJson()
-									.put("character_id", c.game_id));
-							character_data.start();
-							load_out_data.start();
-						}
+						
 					} catch (JSONException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					startGame(primaryStage,22,22,0);
+					
 				});
 				multi_form.add(b, 0, 3);
+				multi_form.add(a, 0, 8);
 			});
 			multi_form.add(start_game, 0, 6);
 			start_game.setDisable(true);
