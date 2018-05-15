@@ -37,7 +37,7 @@ public class LoadOut extends GridPane{
 		this.setBackground(new Background(new BackgroundImage(Main.armor_stand,
 				BackgroundRepeat.NO_REPEAT,
 				BackgroundRepeat.NO_REPEAT,
-				BackgroundPosition.CENTER,
+				BackgroundPosition.DEFAULT,
 				null
 				)));
 		slots.put("right", r);

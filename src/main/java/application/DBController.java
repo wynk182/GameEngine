@@ -76,6 +76,33 @@ public class DBController {
 		return me;
 	}
 	
+	public static void updateCharacter(Character character) {
+		Connection c = connect();
+		try {
+			PreparedStatement pstmt = c.prepareStatement(
+					"update characters set (name,spec,gender)"
+					+ " = (?,?,?) where id = "+character.localDBID+";"
+					);
+			pstmt.setString(1, character.name);
+			pstmt.setInt(2, 0);
+			pstmt.setString(3, character.gender);
+			pstmt.execute();
+			pstmt.close();
+			pstmt = c.prepareStatement(""
+					+ "update loadouts set (right_hand,left_hand,body,head,feet) "
+					+ "= (?,?,?,?,?) where character_id = " + character.localDBID + ";");
+			pstmt.setInt(1, 0);
+			pstmt.setInt(2, 0);
+			pstmt.setInt(3, 0);
+			pstmt.setInt(4, 0);
+			pstmt.setInt(5, 0);
+			c.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public static void loadCharacters(Connection conn){
 		
 		try {
@@ -119,6 +146,7 @@ public class DBController {
 				int defense = characters.getInt("defense");
 				int moves = characters.getInt("moves");
 				Character character = new Character(health,attack,defense,moves);
+				character.localDBID = characters.getInt("id");
 				//character.load_out = load_out;
 				character.name = characters.getString("name");
 				character.gender = characters.getString("gender");

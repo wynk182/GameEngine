@@ -14,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 
 public class Character extends Rectangle{
 	
+	public int localDBID = 0;
 	public LoadOut load_out = new LoadOut();
 	public String name = "Buster";
 	public String gender = "Male";
@@ -31,7 +32,7 @@ public class Character extends Rectangle{
 	
 	public Character(int h, int a, int d, int m) {	
 		this.game_id = GameUtil.getSaltString(5);
-		System.out.println(this.game_id);
+		//System.out.println(this.game_id);
 		this.health = h;
 		this.attack = a;
 		this.defense = d;

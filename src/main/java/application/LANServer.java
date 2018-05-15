@@ -164,7 +164,8 @@ public class LANServer extends Service<Void>{
 											//character_data.put("load_out", c.load_out.toJson());
 											SendData send_character = new SendData(c.toJson());
 											send_character.start();
-											SendData send_load_out = new SendData(c.load_out.toJson().put("caracter_id", c.game_id));
+											SendData send_load_out = new SendData(c.load_out.toJson()
+													.put("caracter_id", c.game_id));
 											send_load_out.start();
 										}
 										Main.start_game.setDisable(false);

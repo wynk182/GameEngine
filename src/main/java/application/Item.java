@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 public class Item extends Rectangle{
+	
+	public int localDBID = 0;
 	String name = "";
 	String item_type = "";
 	int attack_bonus = 0;

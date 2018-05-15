@@ -82,28 +82,50 @@ public class Main extends Application {
 		GridPane bp = new GridPane();
 		HBox top = new HBox();
 		HBox center = new HBox();
+		VBox info_box = new VBox();
 		Label character_info = new Label();
 		Button next = new Button("Next");
+		Button save = new Button("Save");
 		Pane content = new Pane();
+		TextField tf = new TextField();
 		
 		next.setOnAction(e -> {
+			top.getChildren().remove(selected_character.load_out);
 			selected_character = characters.getNext();
-			top.getChildren().removeAll(top.getChildren());
-			character_info.setText(selected_character.name);
-			top.getChildren().addAll(selected_character.load_out,character_info);
+			tf.setText(selected_character.name);
+			character_info.setText("HP: " + selected_character.health()
+					+ "\nAtt: "+ selected_character.attack()
+					+ "\nDef: " + selected_character.defense()
+					+ "\nMv: " + selected_character.moves()
+					+ "\nRng: " + selected_character.range());
+			top.getChildren().add(selected_character.load_out);
+		});
+		
+		save.setOnAction(e -> {
+			DBController.updateCharacter(selected_character);
 		});
 		
 		//backpack.setRotate(90);
-		
+		center.getChildren().addAll(next,save);
 		selected_character = characters.getNext();
-		character_info.setText(selected_character.name);
-		top.getChildren().addAll(selected_character.load_out,character_info);
+		tf.setText(selected_character.name);
+		character_info.setText("HP: " + selected_character.health()
+				+ "\nAtt: "+ selected_character.attack()
+				+ "\nDef: " + selected_character.defense()
+				+ "\nMv: " + selected_character.moves()
+				+ "\nRng: " + selected_character.range());
+		info_box.getChildren().addAll(tf,character_info,center);
+		top.getChildren().addAll(info_box,selected_character.load_out);
 		
 		//center.getChildren().add(backpack);
+		top.setPadding(new Insets(0, 0, 0, 60));
+		top.setSpacing(25);
+		info_box.setSpacing(25);
 		content.getChildren().addAll(bp,info);
 		bp.add(top,1,1);
 		bp.add(backpack,0,1,1,3);
-		bp.add(next,0,4);
+		//bp.add(next,0,4);
+		bp.setPadding(new Insets(25));
 		lt.setText("Characters");
 		lt.setClosable(false);
 		lt.setContent(content);
@@ -175,6 +197,13 @@ public class Main extends Application {
 								.put("data", game_board)
 								.put("request", "game_board"));
 						send.start();
+						for(Character c : characters.values()) {
+							SendData character_data = new SendData(c.toJson()); 
+							SendData load_out_data = new SendData(c.load_out.toJson()
+									.put("character_id", c.game_id));
+							character_data.start();
+							load_out_data.start();
+						}
 					} catch (JSONException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
@@ -200,6 +229,7 @@ public class Main extends Application {
 				
 				
 				start_game.setOnAction(st -> {
+					map_loaded = true;
 					startGame(primaryStage,22,22,0);
 				});
 				
