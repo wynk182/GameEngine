@@ -96,6 +96,7 @@ public class RecieveData extends Service<Void>{
 										c.has_attacked = false;
 										c.has_moved = 0;
 									}
+									//Main.selected_character = Main.characters.getNext();
 								}
 								//set next character and 
 								break;

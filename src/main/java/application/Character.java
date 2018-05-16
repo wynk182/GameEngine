@@ -154,9 +154,9 @@ public class Character extends Rectangle{
 				.put("character_id", this.game_id)
 				.put("name", this.name)
 				.put("damage_taken", this.damage_taken)
-				.put("health", health())
-				.put("attack", attack())
-				.put("defense", defense())
+				.put("health", this.health)
+				.put("attack", this.attack)
+				.put("defense", this.defense)
 				.put("coordinates", new JSONArray()
 						.put(this.coordinates[0])
 						.put(this.coordinates[1]));
