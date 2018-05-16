@@ -1,5 +1,7 @@
 package application;
 
+import org.json.JSONException;
+
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -41,6 +43,17 @@ public class Item extends Rectangle{
 						Main.backpack.addToBackPack(this);
 					}				
 				}
+			}
+			if(GameUtil.MULTIPLAYER){
+				SendData send;
+				try {
+					send = new SendData(Main.selected_character.load_out.toJson().put("character_id", Main.selected_character.game_id));
+					send.start();
+				} catch (JSONException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 			}
 			
 		});

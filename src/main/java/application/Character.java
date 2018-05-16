@@ -160,23 +160,7 @@ public class Character extends Rectangle{
 				.put("coordinates", new JSONArray()
 						.put(this.coordinates[0])
 						.put(this.coordinates[1]));
-			/*
-			JSONArray json_loadout = new JSONArray();
-			for(Node n : this.load_out.getChildren()) {
-				Item node = (Item) n;
-				JSONObject json_item = new JSONObject();
-				json_item
-					.put("name", node.name)
-					.put("attack_bonus", node.attack_bonus)
-					.put("defense_bonus", node.defense_bonus)
-					.put("move_bonus", node.move_bonus)
-					.put("health_bonus", node.health_bonus)
-					.put("worth", node.worth)
-					.put("range", node.range);
-				json_loadout.put(json_item);
-			}
-			character.put("load_out", json_loadout);
-			*/
+			
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
