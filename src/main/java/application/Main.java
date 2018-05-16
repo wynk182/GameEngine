@@ -387,7 +387,7 @@ public class Main extends Application {
 			setZoom(box_size);
 			grid.add(selected_character, 5, 5);
 			
-			bp.getChildren().addAll(grid,action_box,info, damage_box);
+			bp.getChildren().addAll(grid,action_box,info, damage_box, game_info);
 	        Scene scene = new Scene(bp,board_width+100,board_height);
 	        scene.setOnKeyPressed(e -> {
 	        	System.out.println(e.getCode());
