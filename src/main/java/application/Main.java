@@ -25,14 +25,17 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
@@ -78,6 +81,95 @@ public class Main extends Application {
 	static CharacterList opponents = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
 	static File[] maps;
+	int[][] map = new int[10][10];
+
+	
+	public Tab mapBuilderTab() {
+		Tab map_builder = new Tab("Map Builder");
+		BorderPane bp = new BorderPane();
+		GridPane gp = new GridPane();
+		RadioButton forest = new RadioButton("Forest");
+		RadioButton water = new RadioButton("Water");
+		RadioButton stone = new RadioButton("Stone");
+		ToggleGroup land_forms = new ToggleGroup();
+		HBox toggles = new HBox();
+		Spinner<Integer> map_width = new Spinner<Integer>();
+		Spinner<Integer> map_height = new Spinner<Integer>();
+		
+	    map_builder.setClosable(false);
+	    gp.setGridLinesVisible(true);
+
+	    map_width.setOnMouseClicked(e -> {
+	    	//System.out.println("width");
+	    	map = new int[map_height.getValue()][map_width.getValue()];
+	    	gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
+	    	for(int i = 0; i < map_width.getValue(); i++) {
+	            ColumnConstraints column = new ColumnConstraints(25);
+	            gp.getColumnConstraints().add(column);
+	        }
+	    });
+	    map_height.setOnMouseClicked(e -> {
+	    	//System.out.println("height");
+	    	map = new int[map_height.getValue()][map_width.getValue()];
+
+	    	gp.getRowConstraints().removeAll(gp.getRowConstraints());
+	    	for(int i = 0; i < map_height.getValue(); i++) {
+	    		RowConstraints column = new RowConstraints(25);
+	            gp.getRowConstraints().add(column);
+	        }
+	    });
+	    gp.setGridLinesVisible(true);
+	    for(int i = 0; i <10; i++) {
+            ColumnConstraints column = new ColumnConstraints(25);
+            gp.getColumnConstraints().add(column);
+        }
+
+        for(int i = 0; i < 10; i++) {
+            RowConstraints row = new RowConstraints(25);
+            gp.getRowConstraints().add(row);
+        }
+        gp.setOnMouseClicked(e ->{
+        	int x = (int) e.getX() / 25;
+        	int y = (int) e.getY() / 25;
+        	
+        	System.out.println(x + ", " + y);
+        	if(forest.isSelected()) {
+        		Rectangle forestR = new Rectangle(1,1,25,25);
+        		forestR.setFill(Color.BROWN);
+        		gp.add(forestR, x, y);
+        		map[y][x] = 1;
+        	}
+        	else if(water.isSelected()) {
+        		Rectangle waterR = new Rectangle(1,1,25,25);
+        		waterR.setFill(Color.LIGHTBLUE);
+        		gp.add(waterR, x, y);
+
+        		map[y][x] = 2;
+        	}
+        	else if(stone.isSelected()) {
+        		Rectangle stoneR = new Rectangle(1,1,25,25);
+        		stoneR.setFill(Color.GREY);
+        		gp.add(stoneR, x, y);
+
+        		map[y][x] = 3;
+        	}
+        	else {
+        		
+        	}
+        });
+	    //gp.setStyle("-fx-background-color:lightgreen;");
+		map_width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 100));
+		map_height.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 100));
+		
+		forest.setToggleGroup(land_forms);
+		water.setToggleGroup(land_forms);
+		stone.setToggleGroup(land_forms);
+		toggles.getChildren().addAll(map_width,map_height,forest,water,stone);
+		bp.setTop(toggles);
+		bp.setCenter(gp);
+		map_builder.setContent(bp);
+		return map_builder;
+	}
 	
 	public Tab loadOutTab() {
 		Tab lt = new Tab();
@@ -171,7 +263,7 @@ public class Main extends Application {
 		    SpinnerValueFactory<Integer> valueFactory =
 		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, initialValue);
 		    
-			tp.getTabs().addAll(single_player,multi_player,loadOutTab());
+			tp.getTabs().addAll(single_player,multi_player,loadOutTab(),mapBuilderTab());
 			single_player.setClosable(false);
 			multi_player.setClosable(false);
 			
