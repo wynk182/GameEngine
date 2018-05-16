@@ -18,13 +18,13 @@ import javafx.scene.shape.Rectangle;
 
 public class MapChooser extends BorderPane{
 	
-	File[] maps;
+	List<File> maps;
 	int current_index = 0;
 	GridPane preview;
 	
-	public MapChooser(File[] maps) {
+	public MapChooser(List<File> maps) {
 		this.maps = maps;
-		int[][] initial_map = parseMapFile(maps[0]);
+		int[][] initial_map = parseMapFile(maps.get(0));
 		preview = new GridPane();
 		Label top = new Label("Size: " + initial_map[0].length + "x" + initial_map.length);
 		Label left = new Label("left");
@@ -51,25 +51,25 @@ public class MapChooser extends BorderPane{
 	
 	public File getPreviousMap() {
 		if(current_index == 0) {
-			current_index = maps.length-1;
+			current_index = maps.size()-1;
 		}
 		else {
 			current_index--;
 		}
-		return maps[current_index];
+		return maps.get(current_index);
 		
 	}
 	
 	public File getNextMap() {
-		if(current_index == maps.length-1)
+		if(current_index == maps.size()-1)
 			current_index = 0;
 		else
 			current_index++;
-		return maps[current_index];
+		return maps.get(current_index);
 	}
 	
 	public int[][] getCurrentMap(){
-		return parseMapFile(maps[current_index]);
+		return parseMapFile(maps.get(current_index));
 	}
 	
 	public int[][] parseMapFile(File map) {
@@ -116,19 +116,28 @@ public class MapChooser extends BorderPane{
         for(int r = 0; r < map.length; r++) {
         	for(int c = 0; c < map[r].length; c++) {
         		
-        		if(map[r][c] > 8) {
-        			Rectangle seed = new Rectangle(1,1, 10, 10);
+        		Rectangle seed = new Rectangle(1,1, 10, 10);
+        		switch(map[r][c]) {
+        		case 1:	        			
+        			seed.setFill(Color.BROWN);	        			
+        			break;
+        		case 2:	        			
+        			seed.setFill(Color.LIGHTBLUE);	        			
+        			break;
+        		case 3:
+        			seed.setFill(Color.GREY);
+        			break;
+        		case 10:
         			seed.setFill(Color.BROWN);
-        			preview.add(seed, c,r);
-        		}        		
-        		else{
-        			Rectangle empty = new Rectangle(1,1, 10, 10);
-        			empty.setFill(Color.LIGHTGREEN);
-        			preview.add(empty, c,r);
+        			break;
+        		default:
+        			seed.setFill(Color.LIGHTGREEN);
+        			break;	        			
         		}
+        		preview.add(seed, c,r);
+        		
         	}
         }
-        //map_preview.setGridLinesVisible(true);	
         
 	}
 	

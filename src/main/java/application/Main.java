@@ -1,6 +1,8 @@
 package application;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FilenameFilter;
@@ -80,10 +82,8 @@ public class Main extends Application {
 	static CharacterList characters = new CharacterList();
 	static CharacterList opponents = new CharacterList();
 	static HashMap<Integer,Item> items = new HashMap<Integer,Item>();
-	static File[] maps;
-	int[][] map = new int[10][10];
+	static List<File> maps = new ArrayList<File>();	
 
-	
 	public Tab mapBuilderTab() {
 		Tab map_builder = new Tab("Map Builder");
 		BorderPane bp = new BorderPane();
@@ -95,13 +95,53 @@ public class Main extends Application {
 		HBox toggles = new HBox();
 		Spinner<Integer> map_width = new Spinner<Integer>();
 		Spinner<Integer> map_height = new Spinner<Integer>();
+		Button save = new Button("Save Map");
+		TextField map_name = new TextField("Map Name");
+		
+		save.setOnAction(e -> {
+			int[][] map = new int[map_height.getValue()][map_width.getValue()];
+			for(int r = 0; r < map.length; r++){
+				for(int c = 0; c < map.length; c++){
+					map[r][c] = 0;
+				}
+			}
+			
+			for(Node n : gp.getChildren()){
+				try{
+					System.out.println(GridPane.getRowIndex(n));
+					System.out.println(GridPane.getColumnIndex(n));
+					map[GridPane.getRowIndex(n)][GridPane.getColumnIndex(n)] = ((Obstacle)n).type;
+				}catch(Exception e1){
+					continue;
+				}				
+			}
+			
+			try {
+				
+				BufferedWriter writer = new BufferedWriter(new FileWriter(map_name.getText() + ".map"));
+				for(int r = 0; r < map.length; r++){
+					String row = Arrays.toString(map[r]);
+					row = row.replace("[", "");
+					row = row.replace("]", "");
+					row = row.replace(" ", "");
+					writer.write(row.trim() + "\n");
+				}
+				writer.flush();
+				writer.close();
+				maps.add(new File(map_name.getText() + ".map"));
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}			
+			
+		});
 		
 	    map_builder.setClosable(false);
 	    gp.setGridLinesVisible(true);
 
 	    map_width.setOnMouseClicked(e -> {
 	    	//System.out.println("width");
-	    	map = new int[map_height.getValue()][map_width.getValue()];
+	    	//map = new int[map_height.getValue()][map_width.getValue()];
 	    	gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
 	    	for(int i = 0; i < map_width.getValue(); i++) {
 	            ColumnConstraints column = new ColumnConstraints(25);
@@ -110,7 +150,7 @@ public class Main extends Application {
 	    });
 	    map_height.setOnMouseClicked(e -> {
 	    	//System.out.println("height");
-	    	map = new int[map_height.getValue()][map_width.getValue()];
+	    	//map = new int[map_height.getValue()][map_width.getValue()];
 
 	    	gp.getRowConstraints().removeAll(gp.getRowConstraints());
 	    	for(int i = 0; i < map_height.getValue(); i++) {
@@ -130,32 +170,26 @@ public class Main extends Application {
         }
         gp.setOnMouseClicked(e ->{
         	int x = (int) e.getX() / 25;
-        	int y = (int) e.getY() / 25;
-        	
-        	System.out.println(x + ", " + y);
-        	if(forest.isSelected()) {
-        		Rectangle forestR = new Rectangle(1,1,25,25);
-        		forestR.setFill(Color.BROWN);
-        		gp.add(forestR, x, y);
-        		map[y][x] = 1;
+        	int y = (int) e.getY() / 25;        	
+        	//System.out.println(x + ", " + y);
+        	Obstacle seed = new Obstacle();
+        	if(forest.isSelected()) {   
+        		seed.type = 1;
+        		seed.setFill(Color.BROWN);          		
         	}
-        	else if(water.isSelected()) {
-        		Rectangle waterR = new Rectangle(1,1,25,25);
-        		waterR.setFill(Color.LIGHTBLUE);
-        		gp.add(waterR, x, y);
-
-        		map[y][x] = 2;
+        	else if(water.isSelected()) {    
+        		seed.type = 2;
+        		seed.setFill(Color.LIGHTBLUE);        		
         	}
-        	else if(stone.isSelected()) {
-        		Rectangle stoneR = new Rectangle(1,1,25,25);
-        		stoneR.setFill(Color.GREY);
-        		gp.add(stoneR, x, y);
-
-        		map[y][x] = 3;
+        	else if(stone.isSelected()) {   
+        		seed.type = 3;
+        		seed.setFill(Color.GREY);        				
         	}
         	else {
-        		
+        		seed.type = 3;
+        		seed.setFill(Color.LIGHTGREEN);
         	}
+        	gp.add(seed, x, y);
         });
 	    //gp.setStyle("-fx-background-color:lightgreen;");
 		map_width.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 100));
@@ -164,7 +198,7 @@ public class Main extends Application {
 		forest.setToggleGroup(land_forms);
 		water.setToggleGroup(land_forms);
 		stone.setToggleGroup(land_forms);
-		toggles.getChildren().addAll(map_width,map_height,forest,water,stone);
+		toggles.getChildren().addAll(map_width,map_height,forest,water,stone,map_name,save);
 		bp.setTop(toggles);
 		bp.setCenter(gp);
 		map_builder.setContent(bp);
@@ -239,12 +273,19 @@ public class Main extends Application {
 			}
 			
 			backpack.setPadding(new Insets(5));
+			try{
+				File[] files = new File(".").listFiles(new FilenameFilter() {	
+				    public boolean accept(File dir, String name) {
+				        return name.toLowerCase().endsWith(".map");
+				    }
+				});
+				for(File file : files){					
+					maps.add(file);
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 			
-			maps = new File(".").listFiles(new FilenameFilter() {
-			    public boolean accept(File dir, String name) {
-			        return name.toLowerCase().endsWith(".map");
-			    }
-			});
 			TabPane tp = new TabPane();
 			Tab single_player = new Tab("Single Player");
 			Tab multi_player = new Tab("Multi Player");
@@ -378,7 +419,6 @@ public class Main extends Application {
 			
 			start.setOnAction(e ->{
 				GameUtil.MULTIPLAYER = false;
-
 				map_loaded = true;
 				game_board = single.getCurrentMap();
 				startGame(primaryStage,22,22,spin.getValue());
@@ -417,7 +457,7 @@ public class Main extends Application {
 			}
 			characters.myTeam = true;
 			
-			grid.setGridLinesVisible(true);	
+			
 			if(!map_loaded) {
 				game_board = new int[height][width];
 			}
@@ -427,11 +467,25 @@ public class Main extends Application {
 	        			int obj = (int)(Math.random()*10);
 	        			game_board[r][c] = obj;
 	        		}
-	        		if(game_board[r][c] > 8) {
-	        			Rectangle seed = new Rectangle(1,1, box_size, box_size);
+	        		Rectangle seed = new Rectangle(1,1, box_size, box_size);
+	        		switch(game_board[r][c]) {
+	        		case 1:	        			
+	        			seed.setFill(Color.BROWN);	        			
+	        			break;
+	        		case 2:	        			
+	        			seed.setFill(Color.LIGHTBLUE);	        			
+	        			break;
+	        		case 3:
+	        			seed.setFill(Color.GREY);
+	        			break;
+	        		case 10:
 	        			seed.setFill(Color.BROWN);
-	        			grid.add(seed, c,r);
+	        			break;
+	        		default:
+	        			seed.setFill(Color.LIGHTGREEN);
+	        			break;	        			
 	        		}
+	        		grid.add(seed, c,r);
 	        		/*
 	        		else if(game_board[r][c] > 6){
 	        			Rectangle gold = new Rectangle(1,1, box_size, box_size);
@@ -441,6 +495,7 @@ public class Main extends Application {
 	        		*/
 	        	}
 	        }
+	        grid.setGridLinesVisible(true);	
 	        
 	        selected_character = characters.getNext();
 			
@@ -583,7 +638,7 @@ public class Main extends Application {
 	        });
 	        
 	        bp.setStyle("-fx-background-color:darkgrey;");
-	        grid.setStyle("-fx-background-color:lightgreen;");
+	        //grid.setStyle("-fx-background-color:lightgreen;");
 			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			primaryStage.show();
@@ -628,16 +683,32 @@ public class Main extends Application {
         for(int r = 0; r < map.length; r++) {
         	for(int c = 0; c < map[r].length; c++) {
         		
-        		if(map[r][c] > 8) {
-        			Rectangle seed = new Rectangle(1,1, 10, 10);
+        		Rectangle seed = new Rectangle(1,1, 10, 10);
+        		switch(map[r][c]) {
+        		case 1:	        			
+        			seed.setFill(Color.BROWN);	        			
+        			break;
+        		case 2:	        			
+        			seed.setFill(Color.LIGHTBLUE);	        			
+        			break;
+        		case 3:
+        			seed.setFill(Color.GREY);
+        			break;
+        		case 10:
         			seed.setFill(Color.BROWN);
-        			map_preview.add(seed, c,r);
-        		}        		
-        		else{
-        			Rectangle empty = new Rectangle(1,1, 10, 10);
-        			empty.setFill(Color.LIGHTGREEN);
-        			map_preview.add(empty, c,r);
+        			break;
+        		default:
+        			seed.setFill(Color.LIGHTGREEN);
+        			break;	        			
         		}
+        		map_preview.add(seed, c,r);
+        		/*
+        		else if(game_board[r][c] > 6){
+        			Rectangle gold = new Rectangle(1,1, box_size, box_size);
+        			gold.setFill(Color.GOLD);
+        			grid.add(gold, c,r);
+        		}
+        		*/
         	}
         }
         //map_preview.setGridLinesVisible(true);	
@@ -720,7 +791,11 @@ public class Main extends Application {
 		int r,c;
 		for(r=0;r<game_board.length;r++) {
 			for(c=0;c<game_board[r].length;c++) {	
-				if(game_board[r][c] > 8){					
+				//if(game_board[r][c] > 8){		
+				switch(game_board[r][c]){
+				case 1:				
+				case 3:
+				case 10:
 					double test = distance(selected_character.coordinates,new int[] {c,r}) + distance(defender.coordinates,new int[] {c,r});
 					double tested = 0;					
 					if(distance > test)
@@ -748,8 +823,17 @@ public class Main extends Application {
 	}
 	
 	public boolean spaceOccupied(int x, int y) {
-		try{
-			if(game_board[y][x] == 12) {
+		try{			
+			switch(game_board[y][x]){			
+			case 1:
+				return true;
+			case 2:
+				return true;
+			case 3:
+				return true;
+			case 10:
+				return true;
+			case 12:
 				game_board[y][x] = 0;
 				System.out.println("Item");
 				List<Item> pick_up = new ArrayList<Item>();
@@ -759,30 +843,16 @@ public class Main extends Application {
 							Item item = (Item) n;
 							pick_up.add(item);
 						}	
-					}catch(Exception e){
-						//e.printStackTrace();
+					}catch(Exception e){						
 						continue;
 					}
 				}				
-				for(Item i : pick_up){
-					//Save picked up items at end of battle
-					//DBController.addNewItem(i.name, i.item_type, i.attack_bonus,
-					//		i.defense_bonus, i.move_bonus, i.health_bonus, i.worth, i.range);
+				for(Item i : pick_up){					
 					grid.getChildren().remove(i);
 					backpack.addToBackPack(i);
 				}				
-				return false;				
-			}
-			else if(game_board[y][x] > 8) 
-				return true;
-			/*
-			else if(game_board[y][x] > 6) {
-				//System.out.println("GOLD");
-				game_board[y][x] = 0;				
-				return false;
-			}
-			*/
-			else {
+				return false;			
+			default:
 				for(Character c : characters.values()) {
 					if(c.coordinates[0] == x && c.coordinates[1] == y)
 						return true;
@@ -791,9 +861,8 @@ public class Main extends Application {
 					if(c.coordinates[0] == x && c.coordinates[1] == y)
 						return true;
 				}
-			}		
-		}catch(Exception e){
-			//e.printStackTrace();
+			}			
+		}catch(Exception e){			
 			return true;
 		}
 		return false;
@@ -833,7 +902,6 @@ public class Main extends Application {
 		if(inRange(target) && target != null){
 			attack(npc,target);	
 			System.out.println(least_distance);
-
 			return true;
 		}
 		return false;
