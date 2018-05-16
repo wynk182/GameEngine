@@ -18,11 +18,11 @@ import javafx.scene.shape.Rectangle;
 
 public class MapChooser extends BorderPane{
 	
-	List<File> maps;
+	List<File> maps = new ArrayList<File>();
 	int current_index = 0;
 	GridPane preview;
 	
-	public MapChooser(List<File> maps) {
+	public MapChooser(List<File> maps) {		
 		this.maps = maps;
 		int[][] initial_map = parseMapFile(maps.get(0));
 		preview = new GridPane();
@@ -38,8 +38,7 @@ public class MapChooser extends BorderPane{
 			int[][] map = parseMapFile(getNextMap());
 			top.setText("Size: " + map[0].length + "x" + map.length);
 			renderPreviewMap(map);
-		});
-		
+		});		
 		
 		this.setTop(top);
 		this.setLeft(left);
@@ -140,5 +139,7 @@ public class MapChooser extends BorderPane{
         }
         
 	}
+	
+	
 	
 }

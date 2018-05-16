@@ -278,7 +278,7 @@ public class Main extends Application {
 				    public boolean accept(File dir, String name) {
 				        return name.toLowerCase().endsWith(".map");
 				    }
-				});
+				});				
 				for(File file : files){					
 					maps.add(file);
 				}
@@ -292,6 +292,8 @@ public class Main extends Application {
 			GridPane multi_form = new GridPane();
 			Button host = new Button("Host?");
 			Button connect = new Button("Connect?");
+			if(maps.size() == 0)
+				createDefaultMap();
 			MapChooser multi = new MapChooser(maps);
 			MapChooser single = new MapChooser(maps);
 			VBox gp = new VBox();
@@ -430,6 +432,30 @@ public class Main extends Application {
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void createDefaultMap(){
+		File map = new File("defalut.map");
+		try {
+			map.createNewFile();
+			BufferedWriter writer = new BufferedWriter(new FileWriter(map));
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		maps.add(map);
 	}
 	
 	public void startGame(Stage primaryStage,int width, int height, int players) {
