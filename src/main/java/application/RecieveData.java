@@ -1,5 +1,11 @@
 package application;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,9 +18,11 @@ import javafx.scene.paint.Color;
 public class RecieveData extends Service<Void>{
 	
 	JSONObject data;
+	Socket game;
 	
-	public RecieveData(JSONObject data){
+	public RecieveData(JSONObject data, Socket game){
 		this.data = data;
+		this.game = game;
 	}
 
 	@Override
@@ -26,6 +34,39 @@ public class RecieveData extends Service<Void>{
 					@Override
 					public void run() {
 						try {
+							BufferedReader in = new BufferedReader(new InputStreamReader(game.getInputStream()));
+							String line = "";
+		            		int content_length = 0;
+		            		while((line=in.readLine())!=null){
+		            			System.out.println(line);
+		            			if(line.toLowerCase().contains("content-length")){
+		            				content_length = Integer.parseInt(line.split(": ")[1]);
+		            				break;
+		            			}
+		            			
+		            		}  
+		            		System.out.println(content_length);
+		            		String request = "";
+		            		String response = "";
+		            		for(int i = 0; i <= content_length+1; i++){
+		            			request += (char) in.read();
+		            		}
+		            		try{
+		            			data = new JSONObject(request);
+		            			System.out.println(data);
+		            			response = "{\"response\":true}";
+		            		}catch(Exception e){
+		            			response = "{\"response\":false}";
+		            		}
+		            		System.out.println();
+		            		PrintWriter out = new PrintWriter(game.getOutputStream());
+		            		out.println("HTTP/1.1 200 OK");
+		            		out.println("Content-Type: application/json");
+		            		//out.println("\r\n");
+		            		out.println("Content-Length: 20");
+		            		out.println("\r\n");
+		            		out.println(response);
+		            		out.close();
 							switch(data.getString("request")){
 							case "character":
 								if(data.getString("game").equals(GameUtil.GAME_ID)) {
@@ -142,7 +183,7 @@ public class RecieveData extends Service<Void>{
 								
 								break;
 							}	
-						} catch (JSONException e) {
+						} catch (JSONException | NumberFormatException | IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}							
