@@ -434,30 +434,6 @@ public class Main extends Application {
 		}
 	}
 	
-	public void createDefaultMap(){
-		File map = new File("defalut.map");
-		try {
-			map.createNewFile();
-			BufferedWriter writer = new BufferedWriter(new FileWriter(map));
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		maps.add(map);
-	}
-	
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
 			backpack.setRotate(0);
@@ -611,6 +587,10 @@ public class Main extends Application {
 		        	case E :
 		        		isMove = false;
 		        		if(GameUtil.MULTIPLAYER){
+		        			for(Character c : characters.values()){
+		        				c.has_attacked = true;
+		        				c.has_moved = c.moves();
+		        			}
 		        			try {
 		        				game_info.showInfo(new Label("Opponents Turn"), 325, 225);
 								SendData send = new SendData(new JSONObject()
@@ -927,7 +907,7 @@ public class Main extends Application {
 		npc.coordinates = new int[]{moves[move][0],moves[move][1]};
 		if(inRange(target) && target != null){
 			attack(npc,target);	
-			System.out.println(least_distance);
+			//System.out.println(least_distance);
 			return true;
 		}
 		return false;
@@ -948,6 +928,30 @@ public class Main extends Application {
 			game_board[defender.coordinates[1]][defender.coordinates[0]] = 12;
 		}		
 		return (damage < defender.defense()) ? 0 : damage-defender.defense();
+	}
+	
+	public void createDefaultMap(){
+		File map = new File("defalut.map");
+		try {
+			map.createNewFile();
+			BufferedWriter writer = new BufferedWriter(new FileWriter(map));
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.write("0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		maps.add(map);
 	}
 	
 	public static Character selected_character = null;
