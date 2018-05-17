@@ -8,8 +8,8 @@ public class Obstacle extends Rectangle {
 	int type = 0;
 	
 	public Obstacle(){
-		this.setWidth(25);
-		this.setHeight(25);
+		this.setWidth(15);
+		this.setHeight(15);
 		this.setFill(Color.LIGHTGREEN);
 	}
 

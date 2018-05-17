@@ -104,6 +104,8 @@ public class RecieveData extends Service<Void>{
 									c.damage_taken += data.getInt("damage");
 									if(c.health() <= c.damage_taken) {
 										Main.characters.remove(c.game_id);
+										if(Main.characters.size() == 0)
+											Main.lose();
 										Main.grid.getChildren().remove(c);
 										c.load_out.dropItems(c.coordinates);
 									}

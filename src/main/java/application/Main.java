@@ -144,7 +144,7 @@ public class Main extends Application {
 	    	//map = new int[map_height.getValue()][map_width.getValue()];
 	    	gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
 	    	for(int i = 0; i < map_width.getValue(); i++) {
-	            ColumnConstraints column = new ColumnConstraints(25);
+	            ColumnConstraints column = new ColumnConstraints(15);
 	            gp.getColumnConstraints().add(column);
 	        }
 	    });
@@ -154,23 +154,23 @@ public class Main extends Application {
 
 	    	gp.getRowConstraints().removeAll(gp.getRowConstraints());
 	    	for(int i = 0; i < map_height.getValue(); i++) {
-	    		RowConstraints column = new RowConstraints(25);
+	    		RowConstraints column = new RowConstraints(15);
 	            gp.getRowConstraints().add(column);
 	        }
 	    });
 	    gp.setGridLinesVisible(true);
 	    for(int i = 0; i <10; i++) {
-            ColumnConstraints column = new ColumnConstraints(25);
+            ColumnConstraints column = new ColumnConstraints(15);
             gp.getColumnConstraints().add(column);
         }
 
         for(int i = 0; i < 10; i++) {
-            RowConstraints row = new RowConstraints(25);
+            RowConstraints row = new RowConstraints(15);
             gp.getRowConstraints().add(row);
         }
         gp.setOnMouseClicked(e ->{
-        	int x = (int) e.getX() / 25;
-        	int y = (int) e.getY() / 25;        	
+        	int x = (int) e.getX() / 15;
+        	int y = (int) e.getY() / 15;        	
         	//System.out.println(x + ", " + y);
         	Obstacle seed = new Obstacle();
         	if(forest.isSelected()) {   
@@ -304,7 +304,7 @@ public class Main extends Application {
 			Label enemies = new Label("Opponents");
 			
 		    SpinnerValueFactory<Integer> valueFactory =
-		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, initialValue);
+		    		new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, initialValue);
 		    
 			tp.getTabs().addAll(single_player,multi_player,loadOutTab(),mapBuilderTab());
 			single_player.setClosable(false);
@@ -653,6 +653,14 @@ public class Main extends Application {
 		}
 	}
 	
+	public static void lose() {
+		System.out.println("lose");
+	}
+	
+	public static void win() {
+		System.out.println("win");
+	}
+	
 	public void playNpcTurn(){
 		for(Character c : opponents.values()){
 			selected_character = c;
@@ -924,6 +932,10 @@ public class Main extends Application {
 			grid.getChildren().remove(defender);
 			Main.characters.remove(defender.game_id);
 			Main.opponents.remove(defender.game_id);
+			if(Main.opponents.size() == 0)
+				win();
+			if(Main.characters.size() == 0)
+				lose();
 			defender.load_out.dropItems(defender.coordinates);
 			game_board[defender.coordinates[1]][defender.coordinates[0]] = 12;
 		}		

@@ -21,14 +21,10 @@ public class LANServer extends Service<Void>{
             	while(true) {
             		ServerSocket s = new ServerSocket(1337);
             		Socket game = s.accept();        		
-            		
             		RecieveData recieve = new RecieveData(json_request, game);
             		recieve.start();
-            		
             		//game.close();
-            		s.close();
-            		
-            		
+            		s.close();  		
             	}
             }
         };
