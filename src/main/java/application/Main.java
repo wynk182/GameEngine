@@ -905,7 +905,7 @@ public class Main extends Application {
 		grid.getChildren().remove(npc);
     	grid.add(npc, moves[move][0], moves[move][1]);
 		npc.coordinates = new int[]{moves[move][0],moves[move][1]};
-		if(inRange(target) && target != null){
+		if(target != null && inRange(target)){
 			attack(npc,target);	
 			//System.out.println(least_distance);
 			return true;
