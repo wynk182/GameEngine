@@ -74,6 +74,7 @@ public class Main extends Application {
 	
 	int players = 1;
 	boolean map_loaded = false;
+	boolean hosting = false;
 	static GridPane map_preview = new GridPane();
 	static 	BackPack backpack = new BackPack();
 	static int[][] game_board = new int[22][22];
@@ -329,6 +330,7 @@ public class Main extends Application {
 			
 			host.setOnAction(e -> {
 				GameUtil.MULTIPLAYER = true;
+				hosting = true;
 				multi_form.add(multi, 0, 5);
 				try {
 					GameUtil.createGameId();
@@ -508,7 +510,8 @@ public class Main extends Application {
 				enemy.load_out.equipItem(enemy_sword, "right");
 			}
 			for(Character c : characters.values()) {
-				c.coordinates = getStartPoint("home");
+				String team = (!hosting && GameUtil.MULTIPLAYER)? "away" : "home";
+				c.coordinates = getStartPoint(team);
 				grid.add(c, c.coordinates[0], c.coordinates[1]);
 			}
 			characters.myTeam = true;
