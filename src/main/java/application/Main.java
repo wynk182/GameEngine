@@ -91,12 +91,18 @@ public class Main extends Application {
 		RadioButton forest = new RadioButton("Forest");
 		RadioButton water = new RadioButton("Water");
 		RadioButton stone = new RadioButton("Stone");
+		RadioButton home_team = new RadioButton("Home");
+		RadioButton enemy_team = new RadioButton("Enemy");
 		ToggleGroup land_forms = new ToggleGroup();
 		HBox toggles = new HBox();
+		HBox tools = new HBox();
+		VBox toolbar = new VBox();
 		Spinner<Integer> map_width = new Spinner<Integer>();
 		Spinner<Integer> map_height = new Spinner<Integer>();
 		Button save = new Button("Save Map");
 		TextField map_name = new TextField("Map Name");
+		boolean home_set = false;
+		boolean away_set = false;
 		
 		save.setOnAction(e -> {
 			int[][] map = new int[map_height.getValue()][map_width.getValue()];
@@ -117,7 +123,6 @@ public class Main extends Application {
 			}
 			
 			try {
-				
 				BufferedWriter writer = new BufferedWriter(new FileWriter(map_name.getText() + ".map"));
 				for(int r = 0; r < map.length; r++){
 					String row = Arrays.toString(map[r]);
@@ -185,6 +190,14 @@ public class Main extends Application {
         		seed.type = 3;
         		seed.setFill(Color.GREY);        				
         	}
+        	else if(home_team.isSelected() && !home_set) {
+        		seed.type = 4;
+        		seed.setFill(Color.BLUE);
+        	}
+        	else if(enemy_team.isSelected() && !away_set) {
+        		seed.type = 5;
+        		seed.setFill(Color.RED);
+        	}
         	else {
         		seed.type = 3;
         		seed.setFill(Color.LIGHTGREEN);
@@ -198,8 +211,12 @@ public class Main extends Application {
 		forest.setToggleGroup(land_forms);
 		water.setToggleGroup(land_forms);
 		stone.setToggleGroup(land_forms);
-		toggles.getChildren().addAll(map_width,map_height,forest,water,stone,map_name,save);
-		bp.setTop(toggles);
+		home_team.setToggleGroup(land_forms);
+		enemy_team.setToggleGroup(land_forms);
+		tools.getChildren().addAll(map_width,map_height,map_name,save);
+		toggles.getChildren().addAll(forest,water,stone,enemy_team,home_team);
+		toolbar.getChildren().addAll(tools,toggles);
+		bp.setTop(toolbar);
 		bp.setCenter(gp);
 		map_builder.setContent(bp);
 		return map_builder;
@@ -436,29 +453,6 @@ public class Main extends Application {
 	
 	public void startGame(Stage primaryStage,int width, int height, int players) {
 		try {
-			backpack.setRotate(0);
-			for(int p = 0; p < players; p++){
-				Character enemy = new Character(100, 0, 0, 3);
-				enemy.name = "Enemy" + p;
-				opponents.put(enemy.game_id,enemy);
-				enemy.coordinates = new int[]{0,0};
-				grid.add(enemy, 0, 0);
-				enemy.setTriggers();
-				enemy.setFill(Color.RED);
-				Item enemy_sword = new Item();
-				enemy_sword.name = "Cutlass";
-				enemy_sword.attack_bonus = 15;
-				enemy_sword.range = 1;
-				enemy_sword.item_type = "right";
-				Item enemy_armor = new Item();
-				enemy_armor.name = "Leather Tunic";
-				enemy_armor.defense_bonus = 15;
-				enemy_armor.item_type = "body";
-				enemy.load_out.equipItem(enemy_armor, "body");
-				enemy.load_out.equipItem(enemy_sword, "right");
-			}
-			characters.myTeam = true;
-			
 			
 			if(!map_loaded) {
 				game_board = new int[height][width];
@@ -488,53 +482,51 @@ public class Main extends Application {
 	        			break;	        			
 	        		}
 	        		grid.add(seed, c,r);
-	        		/*
-	        		else if(game_board[r][c] > 6){
-	        			Rectangle gold = new Rectangle(1,1, box_size, box_size);
-	        			gold.setFill(Color.GOLD);
-	        			grid.add(gold, c,r);
-	        		}
-	        		*/
+	        		
 	        	}
 	        }
+			
+			//backpack.setRotate(0);
+			for(int p = 0; p < players; p++){
+				Character enemy = new Character(100, 0, 0, 3);
+				enemy.name = "Enemy" + p;
+				opponents.put(enemy.game_id,enemy);
+				enemy.coordinates = getStartPoint("away");
+				grid.add(enemy, enemy.coordinates[0],enemy.coordinates[1]);
+				enemy.setTriggers();
+				enemy.setFill(Color.RED);
+				Item enemy_sword = new Item();
+				enemy_sword.name = "Cutlass";
+				enemy_sword.attack_bonus = 15;
+				enemy_sword.range = 1;
+				enemy_sword.item_type = "right";
+				Item enemy_armor = new Item();
+				enemy_armor.name = "Leather Tunic";
+				enemy_armor.defense_bonus = 15;
+				enemy_armor.item_type = "body";
+				enemy.load_out.equipItem(enemy_armor, "body");
+				enemy.load_out.equipItem(enemy_sword, "right");
+			}
+			for(Character c : characters.values()) {
+				c.coordinates = getStartPoint("home");
+				grid.add(c, c.coordinates[0], c.coordinates[1]);
+			}
+			characters.myTeam = true;
+			
 	        grid.setGridLinesVisible(true);	
 	        
 	        selected_character = characters.getNext();
 			
-			/*
-			Pane end_btn = new Pane();
-			Label text = new Label("End Turn");
-			Rectangle end_turn = new Rectangle(1,1,80,20);
-			end_turn.setFill(Color.ALICEBLUE);
-			end_btn.getChildren().addAll(end_turn,text);
-			end_btn.setCursor(Cursor.HAND);
-			end_btn.setOnMouseClicked(e -> {
-				JSONObject json_data = new JSONObject();
-				try {
-					json_data
-						.put("request", "end_turn");
-				} catch (JSONException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				System.out.println(json_data);
-				SendData send = new SendData(json_data);
-				send.start();
-			});
-			*/
-			//Label end_turn = new Label("End Turn");
+			
 			action_box.setBackground(new Background(new BackgroundFill(Color.WHITESMOKE, CornerRadii.EMPTY, Insets.EMPTY)));
 			action_box.getChildren().addAll(character_info,moves,equip,backpack);
-			//end_turn.setOnMouseClicked(e -> {
-			//	playNpcTurn();
-			//});
-			//end_turn.setAlignment(Pos.BOTTOM_CENTER);
+			
 			action_box.setPrefWidth(100);
 			action_box.setPrefHeight(550);
 			grid.setLayoutX(100);
 			setActiveCharacter();
 			setZoom(box_size);
-			grid.add(selected_character, 5, 5);
+			//grid.add(selected_character, 5, 5);
 			
 			bp.getChildren().addAll(grid,action_box,info, damage_box, game_info);
 	        Scene scene = new Scene(bp,board_width+100,board_height);
@@ -651,6 +643,21 @@ public class Main extends Application {
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static int[] getStartPoint(String team) {
+		for(int r = 0; r < game_board.length; r++) {
+			for(int c = 0; c < game_board[0].length;c++) {
+				if(team.equals("home") && game_board[r][c] == 4) {
+					return new int[] {c,r};
+				}
+				else if(team.equals("away") && game_board[r][c] == 5){
+					return new int[] {c,r};
+				}
+			}
+		}
+		return new int[] {0,0};
+		
 	}
 	
 	public static void lose() {
