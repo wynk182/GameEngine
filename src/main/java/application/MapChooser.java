@@ -26,17 +26,18 @@ public class MapChooser extends BorderPane{
 		this.maps = maps;
 		int[][] initial_map = parseMapFile(maps.get(0));
 		preview = new GridPane();
-		Label top = new Label("Size: " + initial_map[0].length + "x" + initial_map.length);
+		Label top = new Label("Size: " + initial_map[0].length + "x" + initial_map.length
+				+ " " + maps.get(0).getName());
 		Label left = new Label("left");
 		left.setOnMouseClicked(e -> {
 			int[][] map = parseMapFile(getPreviousMap());
-			top.setText("Size: " + map[0].length + "x" + map.length);
+			top.setText("Size: " + map[0].length + "x" + map.length + " " + maps.get(current_index).getName());
 			renderPreviewMap(map);
 		});
 		Label right = new Label("right");
 		right.setOnMouseClicked(e -> {
 			int[][] map = parseMapFile(getNextMap());
-			top.setText("Size: " + map[0].length + "x" + map.length);
+			top.setText("Size: " + map[0].length + "x" + map.length + " " + maps.get(current_index).getName());
 			renderPreviewMap(map);
 		});		
 		
